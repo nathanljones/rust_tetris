@@ -106,7 +106,7 @@ async fn main() {
         TETROMINO_O,
         TETROMINO_T,
     ];
-
+    rand::srand(macroquad::miniquad::date::now() as _);
     // put the borders on the board
     for y in 0..BOARD_HEIGHT as i32 {
         for x in 0..BOARD_WIDTH as i32 {
