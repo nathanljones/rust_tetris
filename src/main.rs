@@ -187,7 +187,7 @@ async fn main() {
                         }
                     }
                 }
-                for x in 0..BOARD_WIDTH {
+                for x in 1..BOARD_WIDTH -1 {
                     board[x as usize] = ' ';
                 }
                 filled_lines.clear();
