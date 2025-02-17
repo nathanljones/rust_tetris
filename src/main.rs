@@ -13,12 +13,14 @@ const TETROMINO_L: &str = ".X...X...XX.....";
 const TETROMINO_S: &str = ".X...XX...X.....";
 const TETROMINO_Z: &str = "..X..XX..X......";
 
+#[derive(Clone, Copy)]
 enum Rotation {
     Zero,
     Ninety,
     OneEighty,
     TwoSeventy,
 }
+
 fn rotate(x: i32, y: i32, rotation: &Rotation) -> usize {
     match rotation {
         Rotation::Zero => (y * 4 + x) as usize,
@@ -40,6 +42,7 @@ fn convert_tetromino_colour(tetromino_number: u32) -> Color {
         4 => RED,
         5 => YELLOW,
         6 => PURPLE,
+        8 => VIOLET,
         _ => WHITE,
     }
 }
@@ -84,9 +87,12 @@ async fn main() {
     let mut last_update = get_time();
     let mut navigation_lock = false;
     let mut force_down: bool = false;
-    let mut temp_hide: bool = false;
     let mut current_tetronimo: &str;
     let mut tetromino_number: usize;
+    let mut filled_lines: Vec<i32> = Vec::new();
+    let mut show_filled_lines_time = 0.3;
+    let mut last_show_lines_update = get_time();
+    let mut game_over = false;
 
     // represent the playing board as a single dimension array
     let mut board: [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize] =
@@ -111,66 +117,146 @@ async fn main() {
     }
     tetromino_number = rand::gen_range(0, 6);
     current_tetronimo = tetronimos[tetromino_number];
+    current_x = 5;
+    new_x = 5;
+    rotation = Rotation::Zero;
     loop {
-        if is_key_down(KeyCode::Right) && !navigation_lock {
-            let temp_x: i32 = current_x as i32 + 1;
-            if can_piece_move(current_tetronimo, temp_x, current_y, &rotation, &board) == true {
-                new_x += 1;
-                navigation_lock = true;
+        if !game_over {
+            if is_key_down(KeyCode::Right) && !navigation_lock {
+                if can_piece_move(
+                    current_tetronimo,
+                    current_x + 1,
+                    current_y,
+                    &rotation,
+                    &board,
+                ) == true
+                {
+                    new_x += 1;
+                    new_y = current_y;
+                    navigation_lock = true;
+                }
             }
-        }
-        if is_key_down(KeyCode::Left) && !navigation_lock {
-            let temp_x: i32 = current_x as i32 - 1;
-            if can_piece_move(current_tetronimo, temp_x, current_y, &rotation, &board) == true {
-                new_x -= 1;
-                navigation_lock = true;
+            if is_key_down(KeyCode::Left) && !navigation_lock {
+                if can_piece_move(
+                    current_tetronimo,
+                    current_x - 1,
+                    current_y,
+                    &rotation,
+                    &board,
+                ) == true
+                {
+                    new_x -= 1;
+                    new_y = current_y;
+                    navigation_lock = true;
+                }
             }
-        }
 
-        if get_time() - last_update > speed {
-            last_update = get_time();
-            force_down = true;
-        }
+            if is_key_down(KeyCode::Up) && !navigation_lock {
+                let mut temp_rotation = rotation.clone();
+                match rotation {
+                    Rotation::Zero => temp_rotation = Rotation::Ninety,
+                    Rotation::Ninety => temp_rotation = Rotation::OneEighty,
+                    Rotation::OneEighty => temp_rotation = Rotation::TwoSeventy,
+                    Rotation::TwoSeventy => temp_rotation = Rotation::Zero,
+                }
+                if can_piece_move(
+                    current_tetronimo,
+                    current_x,
+                    current_y,
+                    &temp_rotation,
+                    &board,
+                ) == true
+                {
+                    rotation = temp_rotation;
+                }
+            }
 
-        if can_piece_move(current_tetronimo, new_x, new_y, &rotation, &board) == true {
-            current_x = new_x;
-            current_y = new_y;
-        }
+            if get_time() - last_update > speed {
+                last_update = get_time();
+                force_down = true;
+                navigation_lock = false;
+            }
 
-        if force_down == true {
-            if can_piece_move(
-                current_tetronimo,
-                current_x,
-                current_y + 1,
-                &rotation,
-                &board,
-            ) == true
-            {
-                new_y += 1;
-            } else {
-                for y in 0..TETRONIMO_SIZE as i32 {
-                    for x in 0..TETRONIMO_SIZE as i32 {
-                        if current_tetronimo
-                            .chars()
-                            .nth(rotate(x, y, &rotation))
-                            .unwrap()
-                            == 'X'
-                        {
-                            board[convert_xy_to_array_pos(current_x + x, current_y + y)] =
-                                char::from_u32(tetromino_number as u32).unwrap();
+            if get_time() - last_show_lines_update > show_filled_lines_time {
+                last_show_lines_update = get_time();
+                for line in filled_lines.iter() {
+                    for y in (1..line + 1).rev() {
+                        for x in (0..BOARD_WIDTH as i32) {
+                            board[convert_xy_to_array_pos(x, y)] =
+                                board[convert_xy_to_array_pos(x, y - 1)];
                         }
                     }
                 }
-                current_x = 0;
-                current_y = 0;
-                new_x = 0;
-                new_y = 0;
-                tetromino_number = rand::gen_range(0, 6);
-                current_tetronimo = tetronimos[tetromino_number];
+                for x in 0..BOARD_WIDTH {
+                    board[x as usize] = ' ';
+                }
+                filled_lines.clear();
             }
-            force_down = false;
-        }
 
+            if can_piece_move(current_tetronimo, new_x, new_y, &rotation, &board) == true {
+                current_x = new_x;
+                current_y = new_y;
+            }
+
+            if force_down == true {
+                if can_piece_move(
+                    current_tetronimo,
+                    current_x,
+                    current_y + 1,
+                    &rotation,
+                    &board,
+                ) == true
+                {
+                    new_y += 1;
+                } else {
+                    for y in 0..TETRONIMO_SIZE as i32 {
+                        for x in 0..TETRONIMO_SIZE as i32 {
+                            if current_tetronimo
+                                .chars()
+                                .nth(rotate(x, y, &rotation))
+                                .unwrap()
+                                == 'X'
+                            {
+                                board[convert_xy_to_array_pos(current_x + x, current_y + y)] =
+                                    char::from_u32(tetromino_number as u32).unwrap();
+                            }
+                        }
+                    }
+                    // check for full lines
+                    for y in 0..(BOARD_HEIGHT - 1) as i32 {
+                        let mut has_a_gap: bool = false;
+                        for x in 0..BOARD_WIDTH as i32 {
+                            if board[convert_xy_to_array_pos(x, y)] == ' ' {
+                                has_a_gap = true;
+                            }
+                        }
+                        if has_a_gap != true {
+                            filled_lines.push(y);
+                        }
+                    }
+                    if !filled_lines.is_empty() {
+                        for line in filled_lines.iter() {
+                            for x in 0..BOARD_WIDTH as i32 {
+                                board[convert_xy_to_array_pos(x, *line)] = '8';
+                            }
+                        }
+                    }
+
+                    current_x = 5;
+                    current_y = 0;
+                    new_x = 5;
+                    new_y = 0;
+                    tetromino_number = rand::gen_range(0, 6);
+                    current_tetronimo = tetronimos[tetromino_number];
+                    rotation = Rotation::Zero;
+                    if !can_piece_move(current_tetronimo, current_x, current_y, &rotation, &board){
+                       game_over = true;
+                    }
+
+                }
+                force_down = false;
+            }
+        }
         // draw the screen
         for y in 0..BOARD_HEIGHT as i32 {
             for x in 0..BOARD_WIDTH as i32 {
@@ -203,6 +289,12 @@ async fn main() {
                     );
                 }
             }
+        }
+
+        if game_over {
+            let text = "Game Over.";
+            let font_size = 30.;
+            draw_text(text, 500.0, 250.0, font_size, WHITE);
         }
 
         next_frame().await
