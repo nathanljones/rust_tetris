@@ -93,6 +93,7 @@ async fn main() {
     let mut show_filled_lines_time = 0.3;
     let mut last_show_lines_update = get_time();
     let mut game_over = false;
+    let mut score: u32 = 0;
 
     // represent the playing board as a single dimension array
     let mut board: [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize] =
@@ -222,6 +223,7 @@ async fn main() {
                             }
                         }
                     }
+                    score += 25;
                     // check for full lines
                     for y in 0..(BOARD_HEIGHT - 1) as i32 {
                         let mut has_a_gap: bool = false;
@@ -240,6 +242,8 @@ async fn main() {
                                 board[convert_xy_to_array_pos(x, *line)] = '8';
                             }
                         }
+                        score += filled_lines.len() as u32 * 100;
+
                     }
 
                     current_x = 5;
@@ -272,6 +276,9 @@ async fn main() {
             }
         }
 
+        let text = format!("Score: {score}");
+        let font_size = 30.;
+        draw_text(&text, 500.0, 50.0, font_size, WHITE);
         for y in 0..TETRONIMO_SIZE as i32 {
             for x in 0..TETRONIMO_SIZE as i32 {
                 if current_tetronimo
