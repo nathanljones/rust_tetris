@@ -62,7 +62,7 @@ fn can_piece_move(
                 .unwrap()
                 == 'X'
             {
-                if x as i32 + current_x >= 0 && x as i32 + current_x < BOARD_WIDTH as i32 {
+                if x + current_x >= 0 && x + current_x < BOARD_WIDTH as i32 {
                     if y + current_y >= 0 && y + current_y < BOARD_HEIGHT as i32 {
                         if board[convert_xy_to_array_pos(x + current_x, y + current_y)] != ' ' {
                             return false;
@@ -78,19 +78,19 @@ fn can_piece_move(
 
 #[macroquad::main("Rust Tetris")]
 async fn main() {
-    let mut current_x: i32 = 0;
+    let mut current_x: i32;
     let mut current_y: i32 = 0;
-    let mut new_x: i32 = 0;
+    let mut new_x: i32;
     let mut new_y: i32 = 0;
     let mut rotation = Rotation::Zero;
-    let mut speed = 0.5;
+    let speed = 0.5;
     let mut last_update = get_time();
     let mut navigation_lock = false;
     let mut force_down: bool = false;
     let mut current_tetronimo: &str;
     let mut tetromino_number: usize;
     let mut filled_lines: Vec<i32> = Vec::new();
-    let mut show_filled_lines_time = 0.3;
+    let show_filled_lines_time = 0.3;
     let mut last_show_lines_update = get_time();
     let mut game_over = false;
     let mut score: u32 = 0;
@@ -107,7 +107,7 @@ async fn main() {
         TETROMINO_O,
         TETROMINO_T,
     ];
-    rand::srand(macroquad::miniquad::date::now() as _);
+    rand::srand(miniquad::date::now() as _);
     // put the borders on the board
     for y in 0..BOARD_HEIGHT as i32 {
         for x in 0..BOARD_WIDTH as i32 {
@@ -182,7 +182,7 @@ async fn main() {
                 last_show_lines_update = get_time();
                 for line in filled_lines.iter() {
                     for y in (1..line + 1).rev() {
-                        for x in (0..BOARD_WIDTH as i32) {
+                        for x in 0..BOARD_WIDTH as i32 {
                             board[convert_xy_to_array_pos(x, y)] =
                                 board[convert_xy_to_array_pos(x, y - 1)];
                         }
