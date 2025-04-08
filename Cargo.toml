@@ -5,3 +5,13 @@ edition = "2024"
 
 [dependencies]
 macroquad = "0.4.13"
+
+[lints.clippy]
+pedantic = "warn"
+cargo = "warn"
+complexity = "warn"
+style = "warn"
+perf = "warn"
+correctness = "warn"
+restriction = "warn"
+suspicious = "warn"
