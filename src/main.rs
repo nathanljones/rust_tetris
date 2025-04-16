@@ -105,13 +105,7 @@ fn draw_board(board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize]) {
     for y in 0..BOARD_HEIGHT as i32 {
         for x in 0..BOARD_WIDTH as i32 {
             if board[convert_xy_to_array_pos(x, y)] != ' ' {
-                draw_rectangle(
-                    x as f32 * DRAW_SCALE,
-                    y as f32 * DRAW_SCALE,
-                    DRAW_SCALE,
-                    DRAW_SCALE,
-                    convert_tetromino_colour(board[convert_xy_to_array_pos(x, y)] as u32),
-                );
+                draw_rectangle(x as f32 * DRAW_SCALE, y as f32 * DRAW_SCALE, DRAW_SCALE, DRAW_SCALE, convert_tetromino_colour(board[convert_xy_to_array_pos(x, y)] as u32),);
             }
         }
     }
@@ -233,9 +227,9 @@ fn check_for_filled_lines(board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize])
 }
 #[macroquad::main("Rust Tetris")]
 async fn main() {
-    let mut current_x: i32;
+    let mut current_x: i32=5;
     let mut current_y: i32 = 0;
-    let mut new_x: i32;
+    let mut new_x: i32=5;
     let mut new_y: i32 = 0;
     let mut rotation = Rotation::Zero;
     let mut last_update = get_time();
@@ -265,8 +259,8 @@ async fn main() {
     board = add_boarders_to_board(&board);
     tetromino_number = rand::gen_range(0, 6);
     current_tetromino = tetrominos[tetromino_number];
-    current_x = 5;
-    new_x = current_x;
+    //current_x = 5;
+    //new_x = current_x;
     loop {
         if !game_over {
             if is_key_down(KeyCode::Right) && !navigation_lock && can_piece_move(
@@ -318,14 +312,7 @@ async fn main() {
                 if can_piece_move(current_tetromino, current_x, current_y + 1, rotation, &board,) {
                     new_y += 1;
                 } else {
-                    board = lock_tetromino_in_place(
-                        &board,
-                        current_tetromino,
-                        rotation,
-                        current_x,
-                        current_y,
-                        tetromino_number,
-                    );
+                    board = lock_tetromino_in_place(&board, current_tetromino, rotation, current_x, current_y, tetromino_number,);
                     score += SCORE_INCREMENT;
                     // check for full lines
                     filled_lines = check_for_filled_lines(&board);
@@ -355,13 +342,7 @@ async fn main() {
         // draw the screen
         draw_board(&board);
         draw_score(score);
-        draw_tetromino(
-            current_tetromino,
-            rotation,
-            current_x,
-            current_y,
-            tetromino_number,
-        );
+        draw_tetromino(current_tetromino, rotation, current_x, current_y, tetromino_number,);
 
         if game_over {
             draw_game_over_message();
