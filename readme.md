@@ -1,7 +1,7 @@
 # Rust Tetris using Macroquad
 A Tetris game in Rust using the [Macroquad game engine](https://macroquad.rs/). This is still a work in progress. The code needs A LOT of tidying up.
 
-Next on the list to add is speeding up of game
+Next on the list to add is refactoring
 
 The pieces rotation is still a bit glitchy but that may be game engine related.
 
