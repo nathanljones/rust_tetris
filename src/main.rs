@@ -3,7 +3,7 @@ mod constants {
     pub const BOARD_HEIGHT: u32 = 18;
     pub const BOARD_WIDTH: u32 = 12;
     pub const DRAW_SCALE: f32 = 30.0;
-    pub const TETRONIMO_SIZE: u32 = 4;
+    pub const TETROMINO_SIZE: u32 = 4;
     pub const SPEED: f64 = 0.5;
     pub const SHOW_FILLED_LINES_TIME: f64 = 0.3;
     pub const SCORE_INCREMENT: u32 = 25;
@@ -53,15 +53,15 @@ fn convert_tetromino_colour(tetromino_number: u32) -> Color {
 }
 
 fn can_piece_move(
-    current_tetronimo: &str,
+    current_tetromino: &str,
     current_x: i32,
     current_y: i32,
     current_rotation: Rotation,
     board: &[char],
 ) -> bool {
-    for y in 0..TETRONIMO_SIZE as i32 {
-        for x in 0..TETRONIMO_SIZE as i32 {
-            if current_tetronimo
+    for y in 0..TETROMINO_SIZE as i32 {
+        for x in 0..TETROMINO_SIZE as i32 {
+            if current_tetromino
                 .chars()
                 .nth(rotate(x, y, current_rotation))
                 .unwrap()
@@ -101,7 +101,7 @@ fn draw_score(score: u32) {
     draw_text(&text, 500.0, 50.0, font_size, WHITE);
 }
 
-fn draw_board(board: [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize]) {
+fn draw_board(board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize]) {
     for y in 0..BOARD_HEIGHT as i32 {
         for x in 0..BOARD_WIDTH as i32 {
             if board[convert_xy_to_array_pos(x, y)] != ' ' {
@@ -137,16 +137,16 @@ fn flash_filled_lines(
 
 fn lock_tetromino_in_place(
     board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
-    current_tetronimo: &str,
+    current_tetromino: &str,
     rotation: Rotation,
     current_x: i32,
     current_y: i32,
     tetromino_number: usize,
 ) -> [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize] {
     let mut ret_board: [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize] = *board;
-    for y in 0..TETRONIMO_SIZE as i32 {
-        for x in 0..TETRONIMO_SIZE as i32 {
-            if current_tetronimo
+    for y in 0..TETROMINO_SIZE as i32 {
+        for x in 0..TETROMINO_SIZE as i32 {
+            if current_tetromino
                 .chars()
                 .nth(rotate(x, y, rotation))
                 .unwrap()
@@ -159,16 +159,16 @@ fn lock_tetromino_in_place(
     }
     ret_board
 }
-fn draw_tetronimo(
-    current_tetronimo: &str,
+fn draw_tetromino(
+    current_tetromino: &str,
     rotation: Rotation,
     current_x: i32,
     current_y: i32,
     tetromino_number: usize,
 ) {
-    for y in 0..TETRONIMO_SIZE as i32 {
-        for x in 0..TETRONIMO_SIZE as i32 {
-            if current_tetronimo
+    for y in 0..TETROMINO_SIZE as i32 {
+        for x in 0..TETROMINO_SIZE as i32 {
+            if current_tetromino
                 .chars()
                 .nth(rotate(x, y, rotation))
                 .unwrap()
@@ -192,12 +192,12 @@ fn draw_game_over_message() {
 }
 fn rotate_tetromino(
     board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
-    current_tetronimo: &str,
+    current_tetromino: &str,
     rotation: Rotation,
     current_x: i32,
     current_y: i32,
 ) -> Rotation {
-    let mut temp_rotation = rotation;
+    let temp_rotation:Rotation;
     match rotation {
         Rotation::Zero => temp_rotation = Rotation::Ninety,
         Rotation::Ninety => temp_rotation = Rotation::OneEighty,
@@ -205,7 +205,7 @@ fn rotate_tetromino(
         Rotation::TwoSeventy => temp_rotation = Rotation::Zero,
     }
     if can_piece_move(
-        current_tetronimo,
+        current_tetromino,
         current_x,
         current_y,
         temp_rotation,
@@ -241,7 +241,7 @@ async fn main() {
     let mut last_update = get_time();
     let mut navigation_lock = false;
     let mut force_down: bool = false;
-    let mut current_tetronimo: &str;
+    let mut current_tetromino: &str;
     let mut tetromino_number: usize;
     let mut filled_lines: Vec<i32> = Vec::new();
     let mut last_show_lines_update = get_time();
@@ -251,7 +251,7 @@ async fn main() {
     // represent the playing board as a single dimension array
     let mut board: [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize] =
         [' '; (BOARD_HEIGHT * BOARD_WIDTH) as usize];
-    let tetronimos: [&str; 7] = [
+    let tetrominos: [&str; 7] = [
         TETROMINO_I,
         TETROMINO_J,
         TETROMINO_L,
@@ -264,41 +264,37 @@ async fn main() {
     // put the borders on the board
     board = add_boarders_to_board(&board);
     tetromino_number = rand::gen_range(0, 6);
-    current_tetronimo = tetronimos[tetromino_number];
+    current_tetromino = tetrominos[tetromino_number];
     current_x = 5;
     new_x = current_x;
     loop {
         if !game_over {
-            if is_key_down(KeyCode::Right) && !navigation_lock {
-                if can_piece_move(
-                    current_tetronimo,
+            if is_key_down(KeyCode::Right) && !navigation_lock && can_piece_move(
+                    current_tetromino,
                     current_x + 1,
                     current_y,
                     rotation,
                     &board,
                 ) {
-                    new_x += 1;
-                    new_y = current_y;
-                    navigation_lock = true;
-                }
+                new_x += 1;
+                new_y = current_y;
+                navigation_lock = true;
             }
-            if is_key_down(KeyCode::Left) && !navigation_lock {
-                if can_piece_move(
-                    current_tetronimo,
+            if is_key_down(KeyCode::Left) && !navigation_lock && can_piece_move(
+                    current_tetromino,
                     current_x - 1,
                     current_y,
                     rotation,
                     &board,
                 ) {
-                    new_x -= 1;
-                    new_y = current_y;
-                    navigation_lock = true;
-                }
+                new_x -= 1;
+                new_y = current_y;
+                navigation_lock = true;
             }
 
             if is_key_down(KeyCode::Up) && !navigation_lock {
                 rotation =
-                    rotate_tetromino(&board, current_tetronimo, rotation, current_x, current_y);
+                    rotate_tetromino(&board, current_tetromino, rotation, current_x, current_y);
             }
 
             if get_time() - last_update > SPEED {
@@ -313,24 +309,18 @@ async fn main() {
                 filled_lines.clear();
             }
 
-            if can_piece_move(current_tetronimo, new_x, new_y, rotation, &board) {
+            if can_piece_move(current_tetromino, new_x, new_y, rotation, &board) {
                 current_x = new_x;
                 current_y = new_y;
             }
 
             if force_down {
-                if can_piece_move(
-                    current_tetronimo,
-                    current_x,
-                    current_y + 1,
-                    rotation,
-                    &board,
-                ) {
+                if can_piece_move(current_tetromino, current_x, current_y + 1, rotation, &board,) {
                     new_y += 1;
                 } else {
                     board = lock_tetromino_in_place(
                         &board,
-                        current_tetronimo,
+                        current_tetromino,
                         rotation,
                         current_x,
                         current_y,
@@ -353,9 +343,9 @@ async fn main() {
                     new_x = 5;
                     new_y = 0;
                     tetromino_number = rand::gen_range(0, 6);
-                    current_tetronimo = tetronimos[tetromino_number];
+                    current_tetromino = tetrominos[tetromino_number];
                     rotation = Rotation::Zero;
-                    if !can_piece_move(current_tetronimo, current_x, current_y, rotation, &board) {
+                    if !can_piece_move(current_tetromino, current_x, current_y, rotation, &board) {
                         game_over = true;
                     }
                 }
@@ -363,10 +353,10 @@ async fn main() {
             }
         }
         // draw the screen
-        draw_board(board);
+        draw_board(&board);
         draw_score(score);
-        draw_tetronimo(
-            current_tetronimo,
+        draw_tetromino(
+            current_tetromino,
             rotation,
             current_x,
             current_y,
