@@ -1,3 +1,4 @@
+
 use crate::Rotation;
 const TETROMINO_I: &str = "..X...X...X...X.";
 const TETROMINO_O: &str = ".....XX..XX.....";
