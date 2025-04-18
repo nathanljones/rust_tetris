@@ -1,7 +1,9 @@
-use macroquad::color::{Color, DARKBLUE, GREEN, ORANGE, PURPLE, RED, SKYBLUE, VIOLET, WHITE, YELLOW};
+use macroquad::color::{
+    Color, DARKBLUE, GREEN, ORANGE, PURPLE, RED, SKYBLUE, VIOLET, WHITE, YELLOW,
+};
 use macroquad::prelude::{draw_rectangle, draw_text};
 mod constants;
-use constants::*;
+use constants::{BOARD_HEIGHT, BOARD_WIDTH, DRAW_SCALE, TETROMINO_SIZE};
 #[derive(Clone, Copy)]
 pub enum Rotation {
     Zero,
@@ -10,6 +12,17 @@ pub enum Rotation {
     TwoSeventy,
 }
 
+//Hold X & Y values as a U32
+pub struct UCoordinate {
+    pub x: u32,
+    pub y: u32,
+}
+impl UCoordinate {
+    #[must_use]
+    pub fn new(x: u32, y: u32) -> Self {
+        Self { x, y }
+    }
+}
 pub fn rotate(x: i32, y: i32, rotation: Rotation) -> usize {
     match rotation {
         Rotation::Zero => (y * 4 + x) as usize,
@@ -89,7 +102,13 @@ pub fn draw_board(board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize]) {
     for y in 0..BOARD_HEIGHT as i32 {
         for x in 0..BOARD_WIDTH as i32 {
             if board[convert_xy_to_array_pos(x, y)] != ' ' {
-                draw_rectangle(x as f32 * DRAW_SCALE, y as f32 * DRAW_SCALE, DRAW_SCALE, DRAW_SCALE, convert_tetromino_colour(board[convert_xy_to_array_pos(x, y)] as u32),);
+                draw_rectangle(
+                    x as f32 * DRAW_SCALE,
+                    y as f32 * DRAW_SCALE,
+                    DRAW_SCALE,
+                    DRAW_SCALE,
+                    convert_tetromino_colour(board[convert_xy_to_array_pos(x, y)] as u32),
+                );
             }
         }
     }
@@ -175,7 +194,7 @@ pub fn rotate_tetromino(
     current_x: i32,
     current_y: i32,
 ) -> Rotation {
-    let temp_rotation:Rotation;
+    let temp_rotation: Rotation;
     match rotation {
         Rotation::Zero => temp_rotation = Rotation::Ninety,
         Rotation::Ninety => temp_rotation = Rotation::OneEighty,

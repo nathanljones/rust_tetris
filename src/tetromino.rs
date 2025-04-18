@@ -1,4 +1,4 @@
-
+use rust_tetris::UCoordinate;
 use crate::Rotation;
 const TETROMINO_I: &str = "..X...X...X...X.";
 const TETROMINO_O: &str = ".....XX..XX.....";
@@ -63,20 +63,20 @@ impl Tetromino {
                     self.shape_name
                         .shape()
                         .chars()
-                        .nth(self.rotate_square(x, y))
+                        .nth(self.rotate_square(UCoordinate::new(x, y)))
                         .unwrap(),
                 );
             }
         }
         output
     }
-    fn rotate_square(&self, x: u32, y: u32) -> usize {
+    fn rotate_square(&self, coordinate: UCoordinate) -> usize {
         // simple maths to transpose a given X/Y co-ordinate to it's rotated value
         match self.rotation {
-            Rotation::Zero => (y * 4 + x) as usize,
-            Rotation::Ninety => (12 + y - (x * 4)) as usize,
-            Rotation::OneEighty => (15 - (y * 4) - x) as usize,
-            Rotation::TwoSeventy => (3 - y + (x * 4)) as usize,
+            Rotation::Zero => (coordinate.y * 4 + coordinate.x) as usize,
+            Rotation::Ninety => (12 + coordinate.y - (coordinate.x * 4)) as usize,
+            Rotation::OneEighty => (15 - (coordinate.y * 4) - coordinate.x) as usize,
+            Rotation::TwoSeventy => (3 - coordinate.y + (coordinate.x * 4)) as usize,
         }
     }
 }
