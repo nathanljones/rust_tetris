@@ -19,6 +19,7 @@ pub enum TetrominoShape {
 
 impl TetrominoShape {
     fn shape(&self) -> String {
+        // for a given shape name return the actual shape
         match self {
             TetrominoShape::I => String::from(TETROMINO_I),
             TetrominoShape::O => String::from(TETROMINO_O),
@@ -42,6 +43,7 @@ impl Tetromino {
         }
     }
     fn rotate(&mut self) {
+        // move onto the next rotation. In this setup we always move clockwise
         match self.rotation {
             Rotation::Zero => self.rotation = Rotation::Ninety,
             Rotation::Ninety => self.rotation = Rotation::OneEighty,
@@ -50,6 +52,9 @@ impl Tetromino {
         }
     }
     fn get_rotated_tetromino(&mut self) -> String {
+        // We don't hold the rotated shape as part of this structure, we rotate on the fly.
+        // We also hold the shape flattened rather than a 2D vector/array. This means we need to
+        // loop over it to convert to 2D, rotate and convert back to a flattened shape
         let mut output: String = String::new();
         for y in 0..TETROMINO_SIZE {
             for x in 0..TETROMINO_SIZE {
@@ -65,6 +70,7 @@ impl Tetromino {
         output
     }
     fn rotate_square(&self, x: u32, y: u32) -> usize {
+        // simple maths to transpose a given X/Y co-ordinate to it's rotated value
         match self.rotation {
             Rotation::Zero => (y * 4 + x) as usize,
             Rotation::Ninety => (12 + y - (x * 4)) as usize,
