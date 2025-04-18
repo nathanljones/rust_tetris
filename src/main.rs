@@ -1,3 +1,5 @@
+mod tetromino;
+
 use macroquad::prelude::*;
 mod constants {
     pub const BOARD_HEIGHT: u32 = 18;
