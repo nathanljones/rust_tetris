@@ -1,16 +1,8 @@
 mod tetromino;
+mod constants;
 
 use macroquad::prelude::*;
-mod constants {
-    pub const BOARD_HEIGHT: u32 = 18;
-    pub const BOARD_WIDTH: u32 = 12;
-    pub const DRAW_SCALE: f32 = 30.0;
-    pub const TETROMINO_SIZE: u32 = 4;
-    pub const SPEED: f64 = 0.5;
-    pub const SHOW_FILLED_LINES_TIME: f64 = 0.3;
-    pub const SCORE_INCREMENT: u32 = 25;
-    pub const SCORE_COMPLETED_LINES_INCREMENT: u32 = 100;
-}
+
 use constants::*;
 const TETROMINO_I: &str = "..X...X...X...X.";
 const TETROMINO_O: &str = ".....XX..XX.....";
