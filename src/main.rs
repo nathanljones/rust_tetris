@@ -1,5 +1,7 @@
 mod constants;
 mod tetromino;
+mod board;
+
 use macroquad::prelude::*;
 use rust_tetris::{
     Rotation, add_boarders_to_board, can_piece_move, check_for_filled_lines,

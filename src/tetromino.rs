@@ -52,7 +52,7 @@ impl Tetromino {
             Rotation::TwoSeventy => self.rotation = Rotation::Zero,
         }
     }
-    fn get_rotated_tetromino(&mut self) -> String {
+    pub fn get_rotated_tetromino(&mut self) -> String {
         // We don't hold the rotated shape as part of this structure, we rotate on the fly.
         // We also hold the shape flattened rather than a 2D vector/array. This means we need to
         // loop over it to convert to 2D, rotate and convert back to a flattened shape
@@ -70,7 +70,7 @@ impl Tetromino {
         }
         output
     }
-    fn rotate_square(&self, coordinate: UCoordinate) -> usize {
+    pub fn rotate_square(&self, coordinate: UCoordinate) -> usize {
         // simple maths to transpose a given X/Y co-ordinate to it's rotated value
         match self.rotation {
             Rotation::Zero => (coordinate.y * 4 + coordinate.x) as usize,
