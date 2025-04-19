@@ -1,5 +1,5 @@
-use rust_tetris::UCoordinate;
 use crate::Rotation;
+use rust_tetris::UCoordinate;
 const TETROMINO_I: &str = "..X...X...X...X.";
 const TETROMINO_O: &str = ".....XX..XX.....";
 const TETROMINO_T: &str = "..X..XX...X.....";
@@ -95,5 +95,38 @@ mod tests {
             tetromino.get_rotated_tetromino(),
             String::from("........XXXX....")
         );
+        tetromino.rotate();
+        assert_eq!(
+            tetromino.get_rotated_tetromino(),
+            String::from(".X...X...X...X..")
+        );
+
+        tetromino.rotate();
+        assert_eq!(
+            tetromino.get_rotated_tetromino(),
+            String::from("....XXXX........")
+        );
+        tetromino.rotate();
+        assert_eq!(
+            tetromino.get_rotated_tetromino(),
+            String::from("..X...X...X...X.")
+        );
+    }
+    #[test]
+    fn test_get_tetromino_shape() {
+        let mut tetromino = Tetromino::new(TetrominoShape::I);
+        assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_I);
+        let mut tetromino = Tetromino::new(TetrominoShape::O);
+        assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_O);
+        let mut tetromino = Tetromino::new(TetrominoShape::T);
+        assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_T);
+        let mut tetromino = Tetromino::new(TetrominoShape::J);
+        assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_J);
+        let mut tetromino = Tetromino::new(TetrominoShape::L);
+        assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_L);
+        let mut tetromino = Tetromino::new(TetrominoShape::S);
+        assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_S);
+        let mut tetromino = Tetromino::new(TetrominoShape::Z);
+        assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_Z);
     }
 }
