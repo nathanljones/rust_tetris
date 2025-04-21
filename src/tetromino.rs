@@ -35,13 +35,19 @@ impl TetrominoShape {
 pub struct Tetromino {
     shape_name: TetrominoShape,
     rotation: Rotation,
+    colour:u32, // the board is represented as numbers which then gets converted to a colour
+                // so this is just the colour number and will be converted later
 }
 impl Tetromino {
-    fn new(shape_name: TetrominoShape) -> Self {
+    fn new(shape_name: TetrominoShape, colour:u32) -> Self {
         Self {
             shape_name,
             rotation: Rotation::Zero,
+            colour,
         }
+    }
+    pub fn get_colour(&self) -> u32 {
+        self.colour
     }
     fn rotate(&mut self) {
         // move onto the next rotation. In this setup we always move clockwise
@@ -85,7 +91,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_get_rotated_tetromino() {
-        let mut tetromino = Tetromino::new(TetrominoShape::I);
+        let mut tetromino = Tetromino::new(TetrominoShape::I,1);
         assert_eq!(
             tetromino.get_rotated_tetromino(),
             String::from("..X...X...X...X.")
@@ -114,19 +120,19 @@ mod tests {
     }
     #[test]
     fn test_get_tetromino_shape() {
-        let mut tetromino = Tetromino::new(TetrominoShape::I);
+        let mut tetromino = Tetromino::new(TetrominoShape::I,1);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_I);
-        let mut tetromino = Tetromino::new(TetrominoShape::O);
+        let mut tetromino = Tetromino::new(TetrominoShape::O,1);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_O);
-        let mut tetromino = Tetromino::new(TetrominoShape::T);
+        let mut tetromino = Tetromino::new(TetrominoShape::T,1);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_T);
-        let mut tetromino = Tetromino::new(TetrominoShape::J);
+        let mut tetromino = Tetromino::new(TetrominoShape::J,1);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_J);
-        let mut tetromino = Tetromino::new(TetrominoShape::L);
+        let mut tetromino = Tetromino::new(TetrominoShape::L,1);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_L);
-        let mut tetromino = Tetromino::new(TetrominoShape::S);
+        let mut tetromino = Tetromino::new(TetrominoShape::S,1);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_S);
-        let mut tetromino = Tetromino::new(TetrominoShape::Z);
+        let mut tetromino = Tetromino::new(TetrominoShape::Z,1);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_Z);
     }
 }

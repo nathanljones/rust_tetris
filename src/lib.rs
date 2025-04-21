@@ -12,6 +12,12 @@ pub enum Rotation {
     TwoSeventy,
 }
 
+pub enum Direction{
+    Left,
+    Right,
+    Down,
+}
+
 //Hold X & Y values as a U32
 pub struct UCoordinate {
     pub x: u32,
