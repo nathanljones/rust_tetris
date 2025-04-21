@@ -34,6 +34,7 @@ impl Board {
         current_coordinate: &UCoordinate,
         direction: Direction,
     ) -> bool {
+        // check if the piece can move into it's new area. NB the bounds checking isn't complete
         for y in 0..TETROMINO_SIZE {
             for x in 0..TETROMINO_SIZE {
                 if tetromino
@@ -65,7 +66,8 @@ impl Board {
 
         true
     }
-    pub fn get_for_filled_lines(&self) -> Vec<u32> {
+    pub fn get_filled_lines(&self) -> Vec<u32> {
+        // get the filled lines of the board - used for the flash & score
         let mut ret_filled_lines: Vec<u32> = Vec::new();
         for y in 0..BOARD_HEIGHT - 1 {
             let mut has_a_gap: bool = false;
@@ -82,23 +84,51 @@ impl Board {
     }
     pub fn lock_tetromino_in_place(
         &mut self,
-        mut tetromino:Tetromino,
+        mut tetromino: Tetromino,
         current_coordinate: &UCoordinate,
     ) {
         for y in 0..TETROMINO_SIZE {
-            for x in 0..TETROMINO_SIZE{
-                if tetromino.get_rotated_tetromino()
+            for x in 0..TETROMINO_SIZE {
+                if tetromino
+                    .get_rotated_tetromino()
                     .chars()
                     .nth(tetromino.rotate_square(UCoordinate::new(x, y)))
                     .unwrap()
                     == 'X'
                 {
-                    self.board[self.convert_xy_to_array_position(&UCoordinate::new(current_coordinate.x+ x, current_coordinate.y + y))] =
-                        char::from_u32(tetromino.get_colour()).unwrap();
+                    self.board[self.convert_xy_to_array_position(&UCoordinate::new(
+                        current_coordinate.x + x,
+                        current_coordinate.y + y,
+                    ))] = char::from_u32(tetromino.get_colour()).unwrap();
                 }
             }
         }
-
     }
 
+    pub fn remove_filled_lines(&mut self) {
+        // clear down the filled lines. Do this by removing the lines from the board
+        // then adding the appropriate number of rows to the top of the board
+        for line in self.get_filled_lines() {
+            for y in (1..line + 1).rev() {
+                for x in 0..BOARD_WIDTH {
+                    self.convert_xy_to_array_position(&UCoordinate::new(x, y))
+                        == self.convert_xy_to_array_position(&UCoordinate::new(x, y - 1));
+                }
+            }
+        }
+        for x in 1..BOARD_WIDTH - 1 {
+            self.board[x as usize] = ' ';
+        }
+    }
+    pub fn colour_in_filled_lines(&mut self) {
+        // convert the filled in lines to a different colour
+        // so they can flash on screen
+        if !self.get_filled_lines().is_empty() {
+            for line in self.get_filled_lines() {
+                for x in 0..BOARD_WIDTH {
+                    self.board[self.convert_xy_to_array_position(&UCoordinate::new(x, line))] = '8';
+                }
+            }
+        }
+    }
 }
