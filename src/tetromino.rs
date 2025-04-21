@@ -1,5 +1,5 @@
 use crate::Rotation;
-use rust_tetris::UCoordinate;
+use crate::UCoordinate;
 const TETROMINO_I: &str = "..X...X...X...X.";
 const TETROMINO_O: &str = ".....XX..XX.....";
 const TETROMINO_T: &str = "..X..XX...X.....";
@@ -8,6 +8,7 @@ const TETROMINO_L: &str = ".X...X...XX.....";
 const TETROMINO_S: &str = ".X...XX...X.....";
 const TETROMINO_Z: &str = "..X..XX..X......";
 const TETROMINO_SIZE: u32 = 4;
+#[derive(Clone, Copy)]
 pub enum TetrominoShape {
     I,
     O,
@@ -32,6 +33,8 @@ impl TetrominoShape {
         }
     }
 }
+
+#[derive(Clone, Copy)]
 pub struct Tetromino {
     shape_name: TetrominoShape,
     rotation: Rotation,
@@ -39,11 +42,11 @@ pub struct Tetromino {
                 // so this is just the colour number and will be converted later
 }
 impl Tetromino {
-    fn new(shape_name: TetrominoShape, colour:u32) -> Self {
+    pub fn new(shape_name: TetrominoShape) -> Self {
         Self {
             shape_name,
             rotation: Rotation::Zero,
-            colour,
+            colour: 0,
         }
     }
     pub fn get_colour(&self) -> u32 {
@@ -69,14 +72,14 @@ impl Tetromino {
                     self.shape_name
                         .shape()
                         .chars()
-                        .nth(self.rotate_square(UCoordinate::new(x, y)))
+                        .nth(self.rotate_square(&UCoordinate::new(x, y)))
                         .unwrap(),
                 );
             }
         }
         output
     }
-    pub fn rotate_square(&self, coordinate: UCoordinate) -> usize {
+    pub fn rotate_square(&self, coordinate: &UCoordinate) -> usize {
         // simple maths to transpose a given X/Y co-ordinate to it's rotated value
         match self.rotation {
             Rotation::Zero => (coordinate.y * 4 + coordinate.x) as usize,
@@ -91,7 +94,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_get_rotated_tetromino() {
-        let mut tetromino = Tetromino::new(TetrominoShape::I,1);
+        let mut tetromino = Tetromino::new(TetrominoShape::I);
         assert_eq!(
             tetromino.get_rotated_tetromino(),
             String::from("..X...X...X...X.")
@@ -120,19 +123,40 @@ mod tests {
     }
     #[test]
     fn test_get_tetromino_shape() {
-        let mut tetromino = Tetromino::new(TetrominoShape::I,1);
+        let mut tetromino = Tetromino::new(TetrominoShape::I);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_I);
-        let mut tetromino = Tetromino::new(TetrominoShape::O,1);
+        let mut tetromino = Tetromino::new(TetrominoShape::O);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_O);
-        let mut tetromino = Tetromino::new(TetrominoShape::T,1);
+        let mut tetromino = Tetromino::new(TetrominoShape::T);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_T);
-        let mut tetromino = Tetromino::new(TetrominoShape::J,1);
+        let mut tetromino = Tetromino::new(TetrominoShape::J);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_J);
-        let mut tetromino = Tetromino::new(TetrominoShape::L,1);
+        let mut tetromino = Tetromino::new(TetrominoShape::L);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_L);
-        let mut tetromino = Tetromino::new(TetrominoShape::S,1);
+        let mut tetromino = Tetromino::new(TetrominoShape::S);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_S);
-        let mut tetromino = Tetromino::new(TetrominoShape::Z,1);
+        let mut tetromino = Tetromino::new(TetrominoShape::Z);
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_Z);
+    }
+    #[test]
+    fn test_rotated_position(){
+        let mut tetromino = Tetromino::new(TetrominoShape::I);
+        let shape = tetromino.get_rotated_tetromino();
+        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(0,0))).unwrap();
+        assert_eq!(val,'.');
+        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(1,0))).unwrap();
+        assert_eq!(val,'.');
+        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(2,0))).unwrap();
+        assert_eq!(val,'X');
+        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(3,0))).unwrap();
+        assert_eq!(val,'.');
+        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(0,1))).unwrap();
+        assert_eq!(val,'.');
+        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(1,1))).unwrap();
+        assert_eq!(val,'.');
+        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(2,1))).unwrap();
+        assert_eq!(val,'X');
+        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(3,1))).unwrap();
+        assert_eq!(val,'.');
     }
 }

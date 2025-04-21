@@ -2,8 +2,14 @@ use macroquad::color::{
     Color, DARKBLUE, GREEN, ORANGE, PURPLE, RED, SKYBLUE, VIOLET, WHITE, YELLOW,
 };
 use macroquad::prelude::{draw_rectangle, draw_text};
+pub mod board;
 mod constants;
+pub mod tetromino;
+use crate::tetromino::TetrominoShape;
+use board::Board;
 use constants::{BOARD_HEIGHT, BOARD_WIDTH, DRAW_SCALE, TETROMINO_SIZE};
+use tetromino::Tetromino;
+
 #[derive(Clone, Copy)]
 pub enum Rotation {
     Zero,
@@ -12,7 +18,7 @@ pub enum Rotation {
     TwoSeventy,
 }
 
-pub enum Direction{
+pub enum Direction {
     Left,
     Right,
     Down,
@@ -104,16 +110,18 @@ pub fn draw_score(score: u32) {
     draw_text(&text, 500.0, 50.0, font_size, WHITE);
 }
 
-pub fn draw_board(board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize]) {
-    for y in 0..BOARD_HEIGHT as i32 {
-        for x in 0..BOARD_WIDTH as i32 {
-            if board[convert_xy_to_array_pos(x, y)] != ' ' {
+pub fn draw_board(board: &Board) {
+    for y in 0..BOARD_HEIGHT {
+        for x in 0..BOARD_WIDTH {
+            if board.get_board_character_at_coordinate(&UCoordinate::new(x, y)) != ' ' {
                 draw_rectangle(
                     x as f32 * DRAW_SCALE,
                     y as f32 * DRAW_SCALE,
                     DRAW_SCALE,
                     DRAW_SCALE,
-                    convert_tetromino_colour(board[convert_xy_to_array_pos(x, y)] as u32),
+                    convert_tetromino_colour(
+                        board.get_board_character_at_coordinate(&UCoordinate::new(x, y)) as u32,
+                    ),
                 );
             }
         }
@@ -163,6 +171,30 @@ pub fn lock_tetromino_in_place(
     ret_board
 }
 pub fn draw_tetromino(
+    mut tetromino: Tetromino,
+    coordinate: &UCoordinate,
+) {
+    for y in 0..TETROMINO_SIZE {
+        for x in 0..TETROMINO_SIZE {
+            if tetromino.get_rotated_tetromino()
+                .chars()
+                .nth(tetromino.rotate_square(&UCoordinate::new(x,y)))
+                .unwrap()
+                == 'X'
+            {
+                draw_rectangle(
+                    (x +coordinate.x) as f32 * DRAW_SCALE,
+                    (y + coordinate.y) as f32 * DRAW_SCALE,
+                    DRAW_SCALE,
+                    DRAW_SCALE,
+                    convert_tetromino_colour(1),
+                );
+            }
+        }
+    }
+}
+/*
+pub fn draw_tetromino(
     current_tetromino: &str,
     rotation: Rotation,
     current_x: i32,
@@ -187,7 +219,7 @@ pub fn draw_tetromino(
             }
         }
     }
-}
+}*/
 pub fn draw_game_over_message() {
     let text = "Game Over.";
     let font_size = 30.;
@@ -233,4 +265,16 @@ pub fn check_for_filled_lines(board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usi
         }
     }
     ret_filled_lines
+}
+pub fn initialise_tetrominos() -> [Tetromino; 7] {
+    let ret_tetrominos: [Tetromino; 7] = [
+        Tetromino::new(TetrominoShape::I),
+        Tetromino::new(TetrominoShape::J),
+        Tetromino::new(TetrominoShape::L),
+        Tetromino::new(TetrominoShape::S),
+        Tetromino::new(TetrominoShape::Z),
+        Tetromino::new(TetrominoShape::O),
+        Tetromino::new(TetrominoShape::T),
+    ];
+    ret_tetrominos
 }

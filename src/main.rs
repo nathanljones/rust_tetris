@@ -1,27 +1,33 @@
-mod constants;
-mod tetromino;
-mod board;
-
 use macroquad::prelude::*;
-use rust_tetris::{
-    Rotation, add_boarders_to_board, can_piece_move, check_for_filled_lines,
-    convert_xy_to_array_pos, draw_board, draw_game_over_message, draw_score, draw_tetromino,
-    flash_filled_lines, lock_tetromino_in_place, rotate_tetromino,
-};
+use rust_tetris::{draw_board, draw_score, draw_tetromino, initialise_tetrominos, UCoordinate};
 
-use constants::{
-    BOARD_HEIGHT, BOARD_WIDTH, SCORE_COMPLETED_LINES_INCREMENT, SCORE_INCREMENT,
-    SHOW_FILLED_LINES_TIME, SPEED,
-};
-const TETROMINO_I: &str = "..X...X...X...X.";
-const TETROMINO_O: &str = ".....XX..XX.....";
-const TETROMINO_T: &str = "..X..XX...X.....";
-const TETROMINO_J: &str = "..X...X..XX.....";
-const TETROMINO_L: &str = ".X...X...XX.....";
-const TETROMINO_S: &str = ".X...XX...X.....";
-const TETROMINO_Z: &str = "..X..XX..X......";
+use rust_tetris::board::Board;
+use rust_tetris::tetromino::Tetromino;
 
 #[macroquad::main("Rust Tetris")]
+async fn main() {
+    let mut board = Board::new();
+    let score: u32 = 0;
+    let mut tetromino_number: usize;
+    let mut current_tetromino: Tetromino;
+    let mut current_coordinate = UCoordinate::new(0,0);
+    board.add_boarders_to_board();
+    let tetrominos = initialise_tetrominos();
+    rand::srand(miniquad::date::now() as _);
+    tetromino_number = rand::gen_range(0, 6);
+    current_tetromino = tetrominos[tetromino_number];
+    current_coordinate.x = 5;
+    current_coordinate.y = 0;
+    loop {
+        draw_board(&board);
+        draw_tetromino(current_tetromino, &current_coordinate);
+        draw_score(score);
+        next_frame().await;
+    }
+}
+
+// keep below for reference
+/*
 async fn main() {
     let mut current_x: i32 = 5;
     let mut current_y: i32 = 0;
@@ -62,12 +68,12 @@ async fn main() {
             if is_key_down(KeyCode::Right)
                 && !navigation_lock
                 && can_piece_move(
-                    current_tetromino,
-                    current_x + 1,
-                    current_y,
-                    rotation,
-                    &board,
-                )
+                current_tetromino,
+                current_x + 1,
+                current_y,
+                rotation,
+                &board,
+            )
             {
                 new_x += 1;
                 new_y = current_y;
@@ -76,12 +82,12 @@ async fn main() {
             if is_key_down(KeyCode::Left)
                 && !navigation_lock
                 && can_piece_move(
-                    current_tetromino,
-                    current_x - 1,
-                    current_y,
-                    rotation,
-                    &board,
-                )
+                current_tetromino,
+                current_x - 1,
+                current_y,
+                rotation,
+                &board,
+            )
             {
                 new_x -= 1;
                 new_y = current_y;
@@ -172,3 +178,4 @@ async fn main() {
         next_frame().await;
     }
 }
+*/

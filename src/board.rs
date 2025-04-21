@@ -1,18 +1,18 @@
+use crate::{Direction, UCoordinate};
 use crate::constants::{BOARD_HEIGHT, BOARD_WIDTH, TETROMINO_SIZE};
 use crate::tetromino::Tetromino;
-use rust_tetris::{Direction, UCoordinate};
 
-struct Board {
+pub struct Board {
     board: [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
 }
 impl Board {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             board: [' '; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
         }
     }
 
-    fn add_boarders_to_board(&mut self) {
+   pub fn add_boarders_to_board(&mut self) {
         // the pieces on the board are represented as numbers
         // that way they can be coloured in later
         for y in 0..BOARD_HEIGHT {
@@ -40,7 +40,7 @@ impl Board {
                 if tetromino
                     .get_rotated_tetromino()
                     .chars()
-                    .nth(tetromino.rotate_square(UCoordinate::new(x, y)))
+                    .nth(tetromino.rotate_square(&UCoordinate::new(x, y)))
                     .unwrap()
                     == 'X'
                 {
@@ -92,7 +92,7 @@ impl Board {
                 if tetromino
                     .get_rotated_tetromino()
                     .chars()
-                    .nth(tetromino.rotate_square(UCoordinate::new(x, y)))
+                    .nth(tetromino.rotate_square(&UCoordinate::new(x, y)))
                     .unwrap()
                     == 'X'
                 {
@@ -130,5 +130,8 @@ impl Board {
                 }
             }
         }
+    }
+    pub fn get_board_character_at_coordinate(&self, coordinate: &UCoordinate) -> char {
+        self.board[self.convert_xy_to_array_position(coordinate)]
     }
 }
