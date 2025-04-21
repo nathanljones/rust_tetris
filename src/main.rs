@@ -2,7 +2,9 @@ use macroquad::prelude::*;
 use rust_tetris::{draw_board, draw_score, draw_tetromino, initialise_tetrominos, UCoordinate};
 
 use rust_tetris::board::Board;
+use rust_tetris::constants::SPEED;
 use rust_tetris::tetromino::Tetromino;
+
 
 #[macroquad::main("Rust Tetris")]
 async fn main() {
@@ -11,14 +13,26 @@ async fn main() {
     let mut tetromino_number: usize;
     let mut current_tetromino: Tetromino;
     let mut current_coordinate = UCoordinate::new(0,0);
+    let mut last_update = get_time();
+    
+    //initialise the board and first piece
     board.add_boarders_to_board();
     let tetrominos = initialise_tetrominos();
     rand::srand(miniquad::date::now() as _);
     tetromino_number = rand::gen_range(0, 6);
     current_tetromino = tetrominos[tetromino_number];
+    current_tetromino.set_colour(tetromino_number as u32);
     current_coordinate.x = 5;
     current_coordinate.y = 0;
+    
     loop {
+        if get_time() - last_update > SPEED {
+            last_update = get_time();
+            current_coordinate.y = current_coordinate.y + 1;
+            //force_down = true;
+            //navigation_lock = false;
+        }
+
         draw_board(&board);
         draw_tetromino(current_tetromino, &current_coordinate);
         draw_score(score);

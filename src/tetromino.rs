@@ -52,6 +52,9 @@ impl Tetromino {
     pub fn get_colour(&self) -> u32 {
         self.colour
     }
+    pub fn set_colour(&mut self, colour: u32) {
+        self.colour = colour;
+    }
     fn rotate(&mut self) {
         // move onto the next rotation. In this setup we always move clockwise
         match self.rotation {

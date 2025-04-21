@@ -3,7 +3,7 @@ use macroquad::color::{
 };
 use macroquad::prelude::{draw_rectangle, draw_text};
 pub mod board;
-mod constants;
+pub mod constants;
 pub mod tetromino;
 use crate::tetromino::TetrominoShape;
 use board::Board;
@@ -187,7 +187,7 @@ pub fn draw_tetromino(
                     (y + coordinate.y) as f32 * DRAW_SCALE,
                     DRAW_SCALE,
                     DRAW_SCALE,
-                    convert_tetromino_colour(1),
+                    convert_tetromino_colour(tetromino.get_colour()),
                 );
             }
         }
