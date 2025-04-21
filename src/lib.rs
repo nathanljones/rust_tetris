@@ -114,14 +114,13 @@ pub fn draw_board(board: &Board) {
     for y in 0..BOARD_HEIGHT {
         for x in 0..BOARD_WIDTH {
             if board.get_board_character_at_coordinate(&UCoordinate::new(x, y)) != ' ' {
+                //debug!("Colour is {}",char::to_digit(board.get_board_character_at_coordinate(&UCoordinate::new(x, y)),10).unwrap());
                 draw_rectangle(
                     x as f32 * DRAW_SCALE,
                     y as f32 * DRAW_SCALE,
                     DRAW_SCALE,
                     DRAW_SCALE,
-                    convert_tetromino_colour(
-                        board.get_board_character_at_coordinate(&UCoordinate::new(x, y)) as u32,
-                    ),
+                    convert_tetromino_colour(char::to_digit(board.get_board_character_at_coordinate(&UCoordinate::new(x, y)),10).unwrap()),
                 );
             }
         }

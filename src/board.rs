@@ -43,7 +43,8 @@ impl Board {
                         Direction::Left => {}
                         Direction::Right => {}
                         Direction::Down => {
-                            if y + current_coordinate.y == BOARD_HEIGHT {
+                            if y + current_coordinate.y +1 == BOARD_HEIGHT {
+                                //debug!("{:?} {} {}", {}, "Direction check I can't move y =", current_coordinate.y );
                                 return false;
                             }
                         }
@@ -56,13 +57,14 @@ impl Board {
                             y + current_coordinate.y,
                         ))] != ' '
                         {
+                            //debug!("{:?} {} {}", {}, "Bounds check I can't move y =", current_coordinate.y );
                             return false;
                         }
                     }
                 }
             }
         }
-
+        //debug!("I can move");
         true
     }
     pub fn get_filled_lines(&self) -> Vec<u32> {
@@ -87,6 +89,7 @@ impl Board {
         current_coordinate: &UCoordinate,
         direction: Direction,
     ) {
+
         for y in 0..TETROMINO_SIZE {
             for x in 0..TETROMINO_SIZE {
                 if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
@@ -96,15 +99,15 @@ impl Board {
                         Direction::Right => {}
                         Direction::Down => {
                             new_coordinate.x = current_coordinate.x + x;
-                            new_coordinate.y = current_coordinate.y + y;
+                            new_coordinate.y = current_coordinate.y + y -1;
                         }
                     }
-                    debug!(
-                        "{}",
-                        &format!("{} {}", { new_coordinate.y }, "new_coordinate.y")
-                    );
+                    debug!("{:?} {} {}", {}, "Locking y =", current_coordinate.y );
+                    //debug!("{:?} {} {}", {}, "Locked y at ", new_coordinate.y );
+                    //debug!("{:?} {} {}", {}, "array position ", self.convert_xy_to_array_position(&new_coordinate) );
+                    //debug!("{:?} {} {}", {}, "colour ", char::from_digit(tetromino.get_colour(),10).unwrap() );
                     self.board[self.convert_xy_to_array_position(&new_coordinate)]
-                        == char::from_u32(tetromino.get_colour()).unwrap();
+                        = char::from_digit(tetromino.get_colour(),10).unwrap();
                 }
             }
         }
