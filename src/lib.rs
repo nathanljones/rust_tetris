@@ -170,20 +170,12 @@ pub fn lock_tetromino_in_place(
     }
     ret_board
 }
-pub fn draw_tetromino(
-    mut tetromino: Tetromino,
-    coordinate: &UCoordinate,
-) {
+pub fn draw_tetromino(tetromino: &mut Tetromino, coordinate: &UCoordinate) {
     for y in 0..TETROMINO_SIZE {
         for x in 0..TETROMINO_SIZE {
-            if tetromino.get_rotated_tetromino()
-                .chars()
-                .nth(tetromino.rotate_square(&UCoordinate::new(x,y)))
-                .unwrap()
-                == 'X'
-            {
+            if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
                 draw_rectangle(
-                    (x +coordinate.x) as f32 * DRAW_SCALE,
+                    (x + coordinate.x) as f32 * DRAW_SCALE,
                     (y + coordinate.y) as f32 * DRAW_SCALE,
                     DRAW_SCALE,
                     DRAW_SCALE,

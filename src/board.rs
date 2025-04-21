@@ -1,6 +1,7 @@
-use crate::{Direction, UCoordinate};
 use crate::constants::{BOARD_HEIGHT, BOARD_WIDTH, TETROMINO_SIZE};
 use crate::tetromino::Tetromino;
+use crate::{Direction, UCoordinate};
+use macroquad::logging::debug;
 
 pub struct Board {
     board: [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
@@ -12,7 +13,7 @@ impl Board {
         }
     }
 
-   pub fn add_boarders_to_board(&mut self) {
+    pub fn add_boarders_to_board(&mut self) {
         // the pieces on the board are represented as numbers
         // that way they can be coloured in later
         for y in 0..BOARD_HEIGHT {
@@ -28,7 +29,7 @@ impl Board {
         (coordinate.x + coordinate.y * BOARD_WIDTH) as usize
     }
 
-    fn can_piece_move(
+    pub fn can_piece_move(
         &self,
         mut tetromino: Tetromino,
         current_coordinate: &UCoordinate,
@@ -37,17 +38,15 @@ impl Board {
         // check if the piece can move into it's new area. NB the bounds checking isn't complete
         for y in 0..TETROMINO_SIZE {
             for x in 0..TETROMINO_SIZE {
-                if tetromino
-                    .get_rotated_tetromino()
-                    .chars()
-                    .nth(tetromino.rotate_square(&UCoordinate::new(x, y)))
-                    .unwrap()
-                    == 'X'
-                {
+                if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
                     match direction {
                         Direction::Left => {}
                         Direction::Right => {}
-                        Direction::Down => {}
+                        Direction::Down => {
+                            if y + current_coordinate.y == BOARD_HEIGHT {
+                                return false;
+                            }
+                        }
                     }
                     if x + current_coordinate.x < BOARD_WIDTH
                         && y + current_coordinate.y < BOARD_HEIGHT
@@ -86,20 +85,26 @@ impl Board {
         &mut self,
         mut tetromino: Tetromino,
         current_coordinate: &UCoordinate,
+        direction: Direction,
     ) {
         for y in 0..TETROMINO_SIZE {
             for x in 0..TETROMINO_SIZE {
-                if tetromino
-                    .get_rotated_tetromino()
-                    .chars()
-                    .nth(tetromino.rotate_square(&UCoordinate::new(x, y)))
-                    .unwrap()
-                    == 'X'
-                {
-                    self.board[self.convert_xy_to_array_position(&UCoordinate::new(
-                        current_coordinate.x + x,
-                        current_coordinate.y + y,
-                    ))] = char::from_u32(tetromino.get_colour()).unwrap();
+                if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
+                    let mut new_coordinate = UCoordinate::new(0, 0);
+                    match direction {
+                        Direction::Left => {}
+                        Direction::Right => {}
+                        Direction::Down => {
+                            new_coordinate.x = current_coordinate.x + x;
+                            new_coordinate.y = current_coordinate.y + y;
+                        }
+                    }
+                    debug!(
+                        "{}",
+                        &format!("{} {}", { new_coordinate.y }, "new_coordinate.y")
+                    );
+                    self.board[self.convert_xy_to_array_position(&new_coordinate)]
+                        == char::from_u32(tetromino.get_colour()).unwrap();
                 }
             }
         }

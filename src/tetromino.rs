@@ -38,8 +38,8 @@ impl TetrominoShape {
 pub struct Tetromino {
     shape_name: TetrominoShape,
     rotation: Rotation,
-    colour:u32, // the board is represented as numbers which then gets converted to a colour
-                // so this is just the colour number and will be converted later
+    colour: u32, // the board is represented as numbers which then gets converted to a colour
+                 // so this is just the colour number and will be converted later
 }
 impl Tetromino {
     pub fn new(shape_name: TetrominoShape) -> Self {
@@ -55,7 +55,7 @@ impl Tetromino {
     pub fn set_colour(&mut self, colour: u32) {
         self.colour = colour;
     }
-    fn rotate(&mut self) {
+    pub fn rotate(&mut self) {
         // move onto the next rotation. In this setup we always move clockwise
         match self.rotation {
             Rotation::Zero => self.rotation = Rotation::Ninety,
@@ -90,6 +90,13 @@ impl Tetromino {
             Rotation::OneEighty => (15 - (coordinate.y * 4) - coordinate.x) as usize,
             Rotation::TwoSeventy => (3 - coordinate.y + (coordinate.x * 4)) as usize,
         }
+    }
+    pub fn get_val_at_xy(&mut self, coordinate: &UCoordinate) -> char {
+        // this allows us to take an X,Y and return it's value in flattened tetromino
+        self.get_rotated_tetromino()
+            .chars()
+            .nth((coordinate.x + coordinate.y * TETROMINO_SIZE) as usize)
+            .unwrap()
     }
 }
 #[cfg(test)]
@@ -142,24 +149,48 @@ mod tests {
         assert_eq!(tetromino.get_rotated_tetromino(), TETROMINO_Z);
     }
     #[test]
-    fn test_rotated_position(){
+    fn test_rotated_position() {
         let mut tetromino = Tetromino::new(TetrominoShape::I);
-        let shape = tetromino.get_rotated_tetromino();
-        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(0,0))).unwrap();
-        assert_eq!(val,'.');
-        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(1,0))).unwrap();
-        assert_eq!(val,'.');
-        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(2,0))).unwrap();
-        assert_eq!(val,'X');
-        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(3,0))).unwrap();
-        assert_eq!(val,'.');
-        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(0,1))).unwrap();
-        assert_eq!(val,'.');
-        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(1,1))).unwrap();
-        assert_eq!(val,'.');
-        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(2,1))).unwrap();
-        assert_eq!(val,'X');
-        let val = shape.chars().nth(tetromino.rotate_square(&UCoordinate::new(3,1))).unwrap();
-        assert_eq!(val,'.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(0, 0));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(1, 0));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(2, 0));
+        assert_eq!(val, 'X');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(3, 0));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(0, 1));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(1, 1));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(2, 1));
+        assert_eq!(val, 'X');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(3, 1));
+        assert_eq!(val, '.');
+        tetromino.rotate();
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(0, 0));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(1, 0));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(2, 0));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(3, 0));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(0, 1));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(1, 1));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(2, 1));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(3, 1));
+        assert_eq!(val, '.');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(0, 2));
+        assert_eq!(val, 'X');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(1, 2));
+        assert_eq!(val, 'X');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(2, 2));
+        assert_eq!(val, 'X');
+        let val = tetromino.get_val_at_xy(&UCoordinate::new(3, 2));
+        assert_eq!(val, 'X');
     }
 }

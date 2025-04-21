@@ -1,5 +1,5 @@
 use macroquad::prelude::*;
-use rust_tetris::{draw_board, draw_score, draw_tetromino, initialise_tetrominos, UCoordinate};
+use rust_tetris::{draw_board, draw_score, draw_tetromino, initialise_tetrominos, Direction, UCoordinate};
 
 use rust_tetris::board::Board;
 use rust_tetris::constants::SPEED;
@@ -14,27 +14,50 @@ async fn main() {
     let mut current_tetromino: Tetromino;
     let mut current_coordinate = UCoordinate::new(0,0);
     let mut last_update = get_time();
+    let mut force_down: bool = false;
+    let mut navigation_lock:bool = false;
     
     //initialise the board and first piece
     board.add_boarders_to_board();
     let tetrominos = initialise_tetrominos();
     rand::srand(miniquad::date::now() as _);
     tetromino_number = rand::gen_range(0, 6);
-    current_tetromino = tetrominos[tetromino_number];
+    //current_tetromino = tetrominos[tetromino_number];
+    current_tetromino = tetrominos[0];
     current_tetromino.set_colour(tetromino_number as u32);
     current_coordinate.x = 5;
     current_coordinate.y = 0;
     
     loop {
+        if is_key_down(KeyCode::Left) && !navigation_lock {
+                current_coordinate.x -= 1;
+                navigation_lock = true;
+        }
+        if is_key_down(KeyCode::Right) && !navigation_lock {
+            current_coordinate.x += 1;
+            navigation_lock = true;
+        }
+        if is_key_pressed(KeyCode::Up) {
+            current_tetromino.rotate();
+            navigation_lock = true;
+        }
+        
         if get_time() - last_update > SPEED {
             last_update = get_time();
-            current_coordinate.y = current_coordinate.y + 1;
-            //force_down = true;
-            //navigation_lock = false;
+            force_down = true;
+            navigation_lock = false;
         }
 
+        if force_down {
+            if board.can_piece_move(current_tetromino,&current_coordinate,Direction::Down) {
+            current_coordinate.y = current_coordinate.y + 1;
+            force_down = false;}
+            else{
+                board.lock_tetromino_in_place(current_tetromino,&current_coordinate,Direction::Down);
+            }
+        }
         draw_board(&board);
-        draw_tetromino(current_tetromino, &current_coordinate);
+        draw_tetromino(&mut current_tetromino, &current_coordinate);
         draw_score(score);
         next_frame().await;
     }
