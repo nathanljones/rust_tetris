@@ -38,6 +38,7 @@ impl Board {
         direction: Direction,
     ) -> bool {
         // check if the piece can move into it's new area. NB the bounds checking isn't complete
+        debug!("y = {:?} ", tetromino.get_coordinates().y );
         for y in 0..TETROMINO_SIZE {
             for x in 0..TETROMINO_SIZE {
                 if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
@@ -45,9 +46,12 @@ impl Board {
                         Direction::Left => {}
                         Direction::Right => {}
                         Direction::Down => {
-                            if y + tetromino.get_coordinates().y +1 == BOARD_HEIGHT {
-                                //debug!("{:?} {} {}", {}, "Direction check I can't move y =", current_coordinate.y );
-                                return false;
+                            if tetromino.get_coordinates().y > 0 {
+                                debug!("tetromino y = {:?} ", tetromino.get_coordinates().y + y );
+                                if y + tetromino.get_coordinates().y == BOARD_HEIGHT -1 {
+                                    debug!("i cant move!" );
+                                    return false;
+                                }
                             }
                         }
                     }
@@ -103,7 +107,8 @@ impl Board {
                             new_coordinate.y = tetromino.get_coordinates().y + y -1;
                         }
                     }
-                    debug!("{:?} {} {}", {}, "Locking y =", tetromino.get_coordinates().y );
+                    debug!("Locking y = {:?} ", tetromino.get_coordinates().y );
+                    //debug!("{:?} {} {}", {}, "Locking y =", tetromino.get_coordinates().y );
                     //debug!("{:?} {} {}", {}, "Locked y at ", new_coordinate.y );
                     //debug!("{:?} {} {}", {}, "array position ", self.convert_xy_to_array_position(&new_coordinate) );
                     //debug!("{:?} {} {}", {}, "colour ", char::from_digit(tetromino.get_colour(),10).unwrap() );

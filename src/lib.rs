@@ -55,7 +55,7 @@ fn convert_tetromino_colour(tetromino_number: u32) -> Color {
         _ => WHITE,
     }
 }
-
+/*
 pub fn can_piece_move(
     current_tetromino: &str,
     current_x: i32,
@@ -83,7 +83,7 @@ pub fn can_piece_move(
     }
 
     true
-}
+}*/
 
 pub fn add_boarders_to_board(
     board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
@@ -164,13 +164,16 @@ pub fn lock_tetromino_in_place(
     }
     ret_board
 }
-pub fn draw_tetromino(tetromino: &mut Tetromino) {
+pub fn draw_tetromino(tetromino: &mut Tetromino){
+    if tetromino.get_coordinates().y == 0{
+        return;
+    }
     for y in 0..TETROMINO_SIZE {
         for x in 0..TETROMINO_SIZE {
             if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
                 draw_rectangle(
                     (x + tetromino.get_coordinates().x) as f32 * DRAW_SCALE,
-                    (y + tetromino.get_coordinates().y) as f32 * DRAW_SCALE,
+                    (y + tetromino.get_coordinates().y-1) as f32 * DRAW_SCALE,
                     DRAW_SCALE,
                     DRAW_SCALE,
                     convert_tetromino_colour(tetromino.get_colour()),
@@ -211,7 +214,7 @@ pub fn draw_game_over_message() {
     let font_size = 30.;
     draw_text(text, 500.0, 250.0, font_size, WHITE);
 }
-pub fn rotate_tetromino(
+/*pub fn rotate_tetromino(
     board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
     current_tetromino: &str,
     rotation: Rotation,
@@ -236,7 +239,7 @@ pub fn rotate_tetromino(
     } else {
         rotation
     }
-}
+}*/
 pub fn check_for_filled_lines(board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize]) -> Vec<i32> {
     let mut ret_filled_lines: Vec<i32> = Vec::new();
     for y in 0..(BOARD_HEIGHT - 1) as i32 {
