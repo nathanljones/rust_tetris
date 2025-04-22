@@ -18,7 +18,7 @@ async fn main() {
     let mut force_down: bool = false;
     let mut navigation_lock: bool = false;
 
-    //initialise the board and first piece
+    //initialise the first tetromino
     let tetrominos = initialise_tetrominos();
     rand::srand(miniquad::date::now() as _);
     tetromino_number = rand::gen_range(0, 6);
