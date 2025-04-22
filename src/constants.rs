@@ -11,3 +11,7 @@ pub const SHOW_FILLED_LINES_TIME: f64 = 0.3; // How long to show the filled line
 pub const SCORE_INCREMENT: u32 = 25; // Amount to increase score each time a block lands 
 pub const SCORE_COMPLETED_LINES_INCREMENT: u32 = 100; // Amount to increase score by when
 // a full line is achieved
+
+// Sat the starting tetromino X & Y
+pub const TETROMINO_START_X: u32 = 5;
+pub const TETROMINO_START_Y: u32 = 0;

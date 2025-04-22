@@ -1,5 +1,6 @@
+use crate::coordinate::UCoordinate;
 use crate::Rotation;
-use crate::UCoordinate;
+use crate::constants::{ TETROMINO_START_X, TETROMINO_START_Y};
 const TETROMINO_I: &str = "..X...X...X...X.";
 const TETROMINO_O: &str = ".....XX..XX.....";
 const TETROMINO_T: &str = "..X..XX...X.....";
@@ -40,6 +41,7 @@ pub struct Tetromino {
     rotation: Rotation,
     colour: u32, // the board is represented as numbers which then gets converted to a colour
                  // so this is just the colour number and will be converted later
+    coordinates: UCoordinate,
 }
 impl Tetromino {
     pub fn new(shape_name: TetrominoShape) -> Self {
@@ -47,6 +49,7 @@ impl Tetromino {
             shape_name,
             rotation: Rotation::Zero,
             colour: 0,
+            coordinates: UCoordinate { x: TETROMINO_START_X , y: TETROMINO_START_Y },
         }
     }
     pub fn get_colour(&self) -> u32 {
@@ -54,6 +57,18 @@ impl Tetromino {
     }
     pub fn set_colour(&mut self, colour: u32) {
         self.colour = colour;
+    }
+    pub fn get_coordinates(&self) -> UCoordinate {
+        self.coordinates
+    }
+    pub fn move_left(&mut self) {
+        self.coordinates.x -= 1;
+    }
+    pub fn move_right(&mut self) {
+        self.coordinates.x += 1;
+    }
+    pub fn move_down(&mut self) {
+        self.coordinates.y += 1;
     }
     pub fn rotate(&mut self) {
         // move onto the next rotation. In this setup we always move clockwise
@@ -92,7 +107,7 @@ impl Tetromino {
         }
     }
     pub fn get_val_at_xy(&mut self, coordinate: &UCoordinate) -> char {
-        // this allows us to take an X,Y and return it's value in flattened tetromino
+        // this allows us to take an X,Y and return its value in flattened tetromino
         self.get_rotated_tetromino()
             .chars()
             .nth((coordinate.x + coordinate.y * TETROMINO_SIZE) as usize)

@@ -1,6 +1,7 @@
 use crate::constants::{BOARD_HEIGHT, BOARD_WIDTH, TETROMINO_SIZE};
 use crate::tetromino::Tetromino;
-use crate::{Direction, UCoordinate};
+use crate::{Direction};
+use crate::coordinate::UCoordinate;
 use macroquad::logging::debug;
 
 pub struct Board {
@@ -34,7 +35,6 @@ impl Board {
     pub fn can_piece_move(
         &self,
         mut tetromino: Tetromino,
-        current_coordinate: &UCoordinate,
         direction: Direction,
     ) -> bool {
         // check if the piece can move into it's new area. NB the bounds checking isn't complete
@@ -45,18 +45,18 @@ impl Board {
                         Direction::Left => {}
                         Direction::Right => {}
                         Direction::Down => {
-                            if y + current_coordinate.y +1 == BOARD_HEIGHT {
+                            if y + tetromino.get_coordinates().y +1 == BOARD_HEIGHT {
                                 //debug!("{:?} {} {}", {}, "Direction check I can't move y =", current_coordinate.y );
                                 return false;
                             }
                         }
                     }
-                    if x + current_coordinate.x < BOARD_WIDTH
-                        && y + current_coordinate.y < BOARD_HEIGHT
+                    if x + tetromino.get_coordinates().x < BOARD_WIDTH
+                        && y + tetromino.get_coordinates().y < BOARD_HEIGHT
                     {
                         if self.board[self.convert_xy_to_array_position(&UCoordinate::new(
-                            x + current_coordinate.x,
-                            y + current_coordinate.y,
+                            x + tetromino.get_coordinates().x,
+                            y + tetromino.get_coordinates().y,
                         ))] != ' '
                         {
                             //debug!("{:?} {} {}", {}, "Bounds check I can't move y =", current_coordinate.y );
@@ -88,7 +88,6 @@ impl Board {
     pub fn lock_tetromino_in_place(
         &mut self,
         mut tetromino: Tetromino,
-        current_coordinate: &UCoordinate,
         direction: Direction,
     ) {
 
@@ -100,11 +99,11 @@ impl Board {
                         Direction::Left => {}
                         Direction::Right => {}
                         Direction::Down => {
-                            new_coordinate.x = current_coordinate.x + x;
-                            new_coordinate.y = current_coordinate.y + y -1;
+                            new_coordinate.x = tetromino.get_coordinates().x + x;
+                            new_coordinate.y = tetromino.get_coordinates().y + y -1;
                         }
                     }
-                    debug!("{:?} {} {}", {}, "Locking y =", current_coordinate.y );
+                    debug!("{:?} {} {}", {}, "Locking y =", tetromino.get_coordinates().y );
                     //debug!("{:?} {} {}", {}, "Locked y at ", new_coordinate.y );
                     //debug!("{:?} {} {}", {}, "array position ", self.convert_xy_to_array_position(&new_coordinate) );
                     //debug!("{:?} {} {}", {}, "colour ", char::from_digit(tetromino.get_colour(),10).unwrap() );

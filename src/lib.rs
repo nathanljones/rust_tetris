@@ -4,11 +4,15 @@ use macroquad::color::{
 use macroquad::prelude::{draw_rectangle, draw_text};
 pub mod board;
 pub mod constants;
+pub mod coordinate;
 pub mod tetromino;
+
+
 use crate::tetromino::TetrominoShape;
 use board::Board;
 use constants::{BOARD_HEIGHT, BOARD_WIDTH, DRAW_SCALE, TETROMINO_SIZE};
 use tetromino::Tetromino;
+use coordinate::UCoordinate;
 
 #[derive(Clone, Copy)]
 pub enum Rotation {
@@ -25,16 +29,7 @@ pub enum Direction {
 }
 
 //Hold X & Y values as a U32
-pub struct UCoordinate {
-    pub x: u32,
-    pub y: u32,
-}
-impl UCoordinate {
-    #[must_use]
-    pub fn new(x: u32, y: u32) -> Self {
-        Self { x, y }
-    }
-}
+
 pub fn rotate(x: i32, y: i32, rotation: Rotation) -> usize {
     match rotation {
         Rotation::Zero => (y * 4 + x) as usize,
@@ -169,13 +164,13 @@ pub fn lock_tetromino_in_place(
     }
     ret_board
 }
-pub fn draw_tetromino(tetromino: &mut Tetromino, coordinate: &UCoordinate) {
+pub fn draw_tetromino(tetromino: &mut Tetromino) {
     for y in 0..TETROMINO_SIZE {
         for x in 0..TETROMINO_SIZE {
             if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
                 draw_rectangle(
-                    (x + coordinate.x) as f32 * DRAW_SCALE,
-                    (y + coordinate.y) as f32 * DRAW_SCALE,
+                    (x + tetromino.get_coordinates().x) as f32 * DRAW_SCALE,
+                    (y + tetromino.get_coordinates().y) as f32 * DRAW_SCALE,
                     DRAW_SCALE,
                     DRAW_SCALE,
                     convert_tetromino_colour(tetromino.get_colour()),
