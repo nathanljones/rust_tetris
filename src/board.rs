@@ -7,10 +7,12 @@ pub struct Board {
     board: [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
 }
 impl Board {
-    pub fn new() -> Self {
-        Self {
+    pub fn new() -> Board {
+        let mut s = Self {
             board: [' '; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
-        }
+        };
+        s.add_boarders_to_board();
+        s
     }
 
     pub fn add_boarders_to_board(&mut self) {
