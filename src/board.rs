@@ -1,8 +1,7 @@
 use crate::constants::{BOARD_HEIGHT, BOARD_WIDTH, TETROMINO_SIZE};
-use crate::tetromino::Tetromino;
-use crate::{Direction};
 use crate::coordinate::UCoordinate;
-use macroquad::logging::debug;
+use crate::tetromino::Tetromino;
+use crate::Direction;
 
 pub struct Board {
     board: [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
@@ -32,40 +31,30 @@ impl Board {
         (coordinate.x + coordinate.y * BOARD_WIDTH) as usize
     }
 
-    pub fn can_piece_move(
-        &self,
-        mut tetromino: Tetromino,
-        direction: Direction,
-    ) -> bool {
+    pub fn can_piece_move(&self, mut tetromino: Tetromino, direction: Direction) -> bool {
+        let mut x_offset = 0;
+        let mut y_offset = 0;
         // check if the piece can move into it's new area. NB the bounds checking isn't complete
-        debug!("y = {:?} ", tetromino.get_coordinates().y );
         for y in 0..TETROMINO_SIZE {
             for x in 0..TETROMINO_SIZE {
                 if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
                     match direction {
-                        Direction::Left => {}
-                        Direction::Right => {}
+                        Direction::Left => {
+                            x_offset = -1;
+                        }
+                        Direction::Right => {
+                            x_offset = 1;
+                        }
                         Direction::Down => {
-                            if tetromino.get_coordinates().y > 0 {
-                                debug!("tetromino y = {:?} ", tetromino.get_coordinates().y + y );
-                                if y + tetromino.get_coordinates().y == BOARD_HEIGHT -1 {
-                                    debug!("i cant move!" );
-                                    return false;
-                                }
-                            }
+                            y_offset = 1;
                         }
                     }
-                    if x + tetromino.get_coordinates().x < BOARD_WIDTH
-                        && y + tetromino.get_coordinates().y < BOARD_HEIGHT
+                    if self.board[self.convert_xy_to_array_position(&UCoordinate::new(
+                        (x as i32 + tetromino.get_coordinates().x + x_offset) as u32,
+                        (y as i32 + tetromino.get_coordinates().y + y_offset) as u32,
+                    ))] != ' '
                     {
-                        if self.board[self.convert_xy_to_array_position(&UCoordinate::new(
-                            x + tetromino.get_coordinates().x,
-                            y + tetromino.get_coordinates().y,
-                        ))] != ' '
-                        {
-                            //debug!("{:?} {} {}", {}, "Bounds check I can't move y =", current_coordinate.y );
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
@@ -89,31 +78,12 @@ impl Board {
         }
         ret_filled_lines
     }
-    pub fn lock_tetromino_in_place(
-        &mut self,
-        mut tetromino: Tetromino,
-        direction: Direction,
-    ) {
-
+    pub fn lock_tetromino_in_place(&mut self, mut tetromino: Tetromino) {
         for y in 0..TETROMINO_SIZE {
             for x in 0..TETROMINO_SIZE {
                 if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
-                    let mut new_coordinate = UCoordinate::new(0, 0);
-                    match direction {
-                        Direction::Left => {}
-                        Direction::Right => {}
-                        Direction::Down => {
-                            new_coordinate.x = tetromino.get_coordinates().x + x;
-                            new_coordinate.y = tetromino.get_coordinates().y + y -1;
-                        }
-                    }
-                    debug!("Locking y = {:?} ", tetromino.get_coordinates().y );
-                    //debug!("{:?} {} {}", {}, "Locking y =", tetromino.get_coordinates().y );
-                    //debug!("{:?} {} {}", {}, "Locked y at ", new_coordinate.y );
-                    //debug!("{:?} {} {}", {}, "array position ", self.convert_xy_to_array_position(&new_coordinate) );
-                    //debug!("{:?} {} {}", {}, "colour ", char::from_digit(tetromino.get_colour(),10).unwrap() );
-                    self.board[self.convert_xy_to_array_position(&new_coordinate)]
-                        = char::from_digit(tetromino.get_colour(),10).unwrap();
+                    self.board[self.convert_xy_to_array_position(&UCoordinate::new((tetromino.get_coordinates().x+x as i32)as u32, (tetromino.get_coordinates().y+y as i32)as u32))] =
+                        char::from_digit(tetromino.get_colour(), 10).unwrap();
                 }
             }
         }

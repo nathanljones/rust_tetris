@@ -1,6 +1,6 @@
-use crate::coordinate::UCoordinate;
 use crate::Rotation;
-use crate::constants::{ TETROMINO_START_X, TETROMINO_START_Y};
+use crate::constants::{TETROMINO_START_X, TETROMINO_START_Y};
+use crate::coordinate::{ICoordinate, UCoordinate};
 const TETROMINO_I: &str = "..X...X...X...X.";
 const TETROMINO_O: &str = ".....XX..XX.....";
 const TETROMINO_T: &str = "..X..XX...X.....";
@@ -40,8 +40,8 @@ pub struct Tetromino {
     shape_name: TetrominoShape,
     rotation: Rotation,
     colour: u32, // the board is represented as numbers which then gets converted to a colour
-                 // so this is just the colour number and will be converted later
-    coordinates: UCoordinate,
+    // so this is just the colour number and will be converted later
+    coordinates: ICoordinate,
 }
 impl Tetromino {
     pub fn new(shape_name: TetrominoShape) -> Self {
@@ -49,7 +49,10 @@ impl Tetromino {
             shape_name,
             rotation: Rotation::Zero,
             colour: 0,
-            coordinates: UCoordinate { x: TETROMINO_START_X , y: TETROMINO_START_Y },
+            coordinates: ICoordinate {
+                x: TETROMINO_START_X,
+                y: TETROMINO_START_Y,
+            },
         }
     }
     pub fn get_colour(&self) -> u32 {
@@ -58,7 +61,7 @@ impl Tetromino {
     pub fn set_colour(&mut self, colour: u32) {
         self.colour = colour;
     }
-    pub fn get_coordinates(&self) -> UCoordinate {
+    pub fn get_coordinates(&self) -> ICoordinate {
         self.coordinates
     }
     pub fn move_left(&mut self) {

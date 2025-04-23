@@ -1,18 +1,18 @@
 use macroquad::color::{
     Color, DARKBLUE, GREEN, ORANGE, PURPLE, RED, SKYBLUE, VIOLET, WHITE, YELLOW,
 };
-use macroquad::prelude::{draw_rectangle, draw_text};
+use macroquad::miniquad;
+use macroquad::prelude::{draw_rectangle, draw_text, rand};
 pub mod board;
 pub mod constants;
 pub mod coordinate;
 pub mod tetromino;
 
-
 use crate::tetromino::TetrominoShape;
 use board::Board;
 use constants::{BOARD_HEIGHT, BOARD_WIDTH, DRAW_SCALE, TETROMINO_SIZE};
-use tetromino::Tetromino;
 use coordinate::UCoordinate;
+use tetromino::Tetromino;
 
 #[derive(Clone, Copy)]
 pub enum Rotation {
@@ -30,18 +30,18 @@ pub enum Direction {
 
 //Hold X & Y values as a U32
 
-pub fn rotate(x: i32, y: i32, rotation: Rotation) -> usize {
+/*pub fn rotate(x: i32, y: i32, rotation: Rotation) -> usize {
     match rotation {
         Rotation::Zero => (y * 4 + x) as usize,
         Rotation::Ninety => (12 + y - (x * 4)) as usize,
         Rotation::OneEighty => (15 - (y * 4) - x) as usize,
         Rotation::TwoSeventy => (3 - y + (x * 4)) as usize,
     }
-}
-pub fn convert_xy_to_array_pos(x: i32, y: i32) -> usize {
+}*/
+/*pub fn convert_xy_to_array_pos(x: i32, y: i32) -> usize {
     (x + y * BOARD_WIDTH as i32) as usize
 }
-
+*/
 fn convert_tetromino_colour(tetromino_number: u32) -> Color {
     match tetromino_number {
         0 => SKYBLUE,
@@ -85,20 +85,6 @@ pub fn can_piece_move(
     true
 }*/
 
-pub fn add_boarders_to_board(
-    board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
-) -> [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize] {
-    let mut ret_board: [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize] = *board;
-    for y in 0..BOARD_HEIGHT as i32 {
-        for x in 0..BOARD_WIDTH as i32 {
-            if (x == 0 || x == BOARD_WIDTH as i32 - 1) || y == BOARD_HEIGHT as i32 - 1 {
-                ret_board[convert_xy_to_array_pos(x, y)] = '9';
-            }
-        }
-    }
-    ret_board
-}
-
 pub fn draw_score(score: u32) {
     let text = format!("Score: {score}");
     let font_size = 30.;
@@ -115,13 +101,19 @@ pub fn draw_board(board: &Board) {
                     y as f32 * DRAW_SCALE,
                     DRAW_SCALE,
                     DRAW_SCALE,
-                    convert_tetromino_colour(char::to_digit(board.get_board_character_at_coordinate(&UCoordinate::new(x, y)),10).unwrap()),
+                    convert_tetromino_colour(
+                        char::to_digit(
+                            board.get_board_character_at_coordinate(&UCoordinate::new(x, y)),
+                            10,
+                        )
+                        .unwrap(),
+                    ),
                 );
             }
         }
     }
 }
-
+/*
 pub fn flash_filled_lines(
     board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
     filled_lines: &Vec<i32>,
@@ -139,8 +131,8 @@ pub fn flash_filled_lines(
     }
     ret_board
 }
-
-pub fn lock_tetromino_in_place(
+*/
+/*pub fn lock_tetromino_in_place(
     board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
     current_tetromino: &str,
     rotation: Rotation,
@@ -163,17 +155,14 @@ pub fn lock_tetromino_in_place(
         }
     }
     ret_board
-}
-pub fn draw_tetromino(tetromino: &mut Tetromino){
-    if tetromino.get_coordinates().y == 0{
-        return;
-    }
+}*/
+pub fn draw_tetromino(tetromino: &mut Tetromino) {
     for y in 0..TETROMINO_SIZE {
         for x in 0..TETROMINO_SIZE {
             if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
                 draw_rectangle(
-                    (x + tetromino.get_coordinates().x) as f32 * DRAW_SCALE,
-                    (y + tetromino.get_coordinates().y-1) as f32 * DRAW_SCALE,
+                    (x as i32 + tetromino.get_coordinates().x) as f32 * DRAW_SCALE,
+                    (y as i32 + tetromino.get_coordinates().y) as f32 * DRAW_SCALE,
                     DRAW_SCALE,
                     DRAW_SCALE,
                     convert_tetromino_colour(tetromino.get_colour()),
@@ -240,7 +229,7 @@ pub fn draw_game_over_message() {
         rotation
     }
 }*/
-pub fn check_for_filled_lines(board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize]) -> Vec<i32> {
+/*pub fn check_for_filled_lines(board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usize]) -> Vec<i32> {
     let mut ret_filled_lines: Vec<i32> = Vec::new();
     for y in 0..(BOARD_HEIGHT - 1) as i32 {
         let mut has_a_gap: bool = false;
@@ -254,7 +243,7 @@ pub fn check_for_filled_lines(board: &[char; (BOARD_HEIGHT * BOARD_WIDTH) as usi
         }
     }
     ret_filled_lines
-}
+}*/
 pub fn initialise_tetrominos() -> [Tetromino; 7] {
     let ret_tetrominos: [Tetromino; 7] = [
         Tetromino::new(TetrominoShape::I),
@@ -266,4 +255,13 @@ pub fn initialise_tetrominos() -> [Tetromino; 7] {
         Tetromino::new(TetrominoShape::T),
     ];
     ret_tetrominos
+}
+pub fn spawn_tetromino() -> Tetromino {
+    let mut tetromino: Tetromino;
+    rand::srand(miniquad::date::now() as _);
+    let tetromino_number:usize = rand::gen_range(0, 6);
+    //current_tetromino = tetrominos[tetromino_number];
+    tetromino = initialise_tetrominos()[tetromino_number];
+    tetromino.set_colour(tetromino_number as u32);
+    tetromino
 }

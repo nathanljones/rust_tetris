@@ -1,7 +1,5 @@
 use macroquad::prelude::*;
-use rust_tetris::{
-    Direction, draw_board, draw_score, draw_tetromino, initialise_tetrominos,
-};
+use rust_tetris::{draw_board, draw_score, draw_tetromino, spawn_tetromino, Direction};
 
 use rust_tetris::board::Board;
 use rust_tetris::constants::SPEED;
@@ -11,27 +9,24 @@ use rust_tetris::tetromino::Tetromino;
 async fn main() {
     let mut board = Board::new();
     let score: u32 = 0;
-    let mut tetromino_number: usize;
     let mut current_tetromino: Tetromino;
     let mut last_update = get_time();
     let mut force_down: bool = false;
     let mut navigation_lock: bool = false;
-
-    //initialise the first tetromino
-    let tetrominos = initialise_tetrominos();
-    rand::srand(miniquad::date::now() as _);
-    tetromino_number = rand::gen_range(0, 6);
-    //current_tetromino = tetrominos[tetromino_number];
-    current_tetromino = tetrominos[0];
-    current_tetromino.set_colour(tetromino_number as u32);
+    
+    current_tetromino = spawn_tetromino();
 
     loop {
         if is_key_down(KeyCode::Left) && !navigation_lock {
-            current_tetromino.move_left();
+            if board.can_piece_move(current_tetromino, Direction::Left) {
+                current_tetromino.move_left();
+            }
             navigation_lock = true;
         }
         if is_key_down(KeyCode::Right) && !navigation_lock {
-            current_tetromino.move_right();
+            if board.can_piece_move(current_tetromino, Direction::Right) {
+                current_tetromino.move_right();
+            }
             navigation_lock = true;
         }
         if is_key_pressed(KeyCode::Up) {
@@ -41,25 +36,20 @@ async fn main() {
 
         if get_time() - last_update > SPEED {
             last_update = get_time();
-            //if board.can_piece_move(current_tetromino, &current_coordinate, Direction::Down) {
-                force_down = true;
-           //}
+            force_down = true;
             navigation_lock = false;
         }
 
-        
-if force_down {
-    if board.can_piece_move(current_tetromino, Direction::Down) {
-        current_tetromino.move_down();
-        force_down = false;
-    } else {
-        force_down = false;
-        board.lock_tetromino_in_place(
-            current_tetromino,
-            Direction::Down,
-        );
-    }
-}
+        if force_down {
+            if board.can_piece_move(current_tetromino, Direction::Down) {
+                current_tetromino.move_down();
+                force_down = false;
+            } else {
+                force_down = false;
+                board.lock_tetromino_in_place(current_tetromino);
+                current_tetromino = spawn_tetromino();
+            }
+        }
         draw_board(&board);
         draw_tetromino(&mut current_tetromino);
         draw_score(score);

@@ -13,5 +13,5 @@ pub const SCORE_COMPLETED_LINES_INCREMENT: u32 = 100; // Amount to increase scor
 // a full line is achieved
 
 // Sat the starting tetromino X & Y
-pub const TETROMINO_START_X: u32 = 5;
-pub const TETROMINO_START_Y: u32 = 0;
+pub const TETROMINO_START_X: i32 = 5;
+pub const TETROMINO_START_Y: i32 = 0;
