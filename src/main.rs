@@ -1,5 +1,5 @@
 use macroquad::prelude::*;
-use rust_tetris::{Direction, draw_board, draw_score, draw_tetromino, spawn_tetromino};
+use rust_tetris::{Direction, draw_board, draw_score, draw_tetromino, spawn_tetromino, draw_game_over_message};
 
 use rust_tetris::board::Board;
 use rust_tetris::constants::{SCORE_COMPLETED_LINES_INCREMENT, SCORE_INCREMENT, SPEED};
@@ -13,6 +13,7 @@ async fn main() {
     let mut last_update = get_time();
     let mut force_down: bool = false;
     let mut navigation_lock: bool = false;
+    let mut game_over: bool = false;
 
     current_tetromino = spawn_tetromino();
 
@@ -34,6 +35,13 @@ async fn main() {
                 current_tetromino.move_down();
             }
             navigation_lock = true;
+        }
+
+        if is_key_down(KeyCode::Space) && game_over {
+            score = 0;
+            board = Board::new();
+            current_tetromino = spawn_tetromino();
+            game_over = false;
         }
         
         if is_key_pressed(KeyCode::Up) {
@@ -61,12 +69,20 @@ async fn main() {
                     score += SCORE_INCREMENT;
                 }
                 board.colour_in_filled_lines();
-                current_tetromino = spawn_tetromino();
+                if !game_over {
+                    current_tetromino = spawn_tetromino();
+                    if !board.can_piece_move(current_tetromino, Direction::Down){
+                        game_over = true;
+                    }
+                }
             }
         }
         draw_board(&board);
         draw_tetromino(&mut current_tetromino);
         draw_score(score);
+        if game_over {
+            draw_game_over_message()
+        }
         next_frame().await;
     }
 }

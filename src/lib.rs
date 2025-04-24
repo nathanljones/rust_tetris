@@ -89,6 +89,8 @@ pub fn draw_game_over_message() {
     let text = "Game Over.";
     let font_size = 30.;
     draw_text(text, 500.0, 250.0, font_size, WHITE);
+    let text = "Press space to restart.";
+    draw_text(text, 500.0, 300.0, font_size, WHITE);
 }
 pub fn initialise_tetrominos() -> [Tetromino; 7] {
     let ret_tetrominos: [Tetromino; 7] = [
