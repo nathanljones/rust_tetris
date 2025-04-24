@@ -95,7 +95,7 @@ impl Board {
         // clear down the filled lines. Do this by removing the lines from the board
         // then adding the appropriate number of rows to the top of the board
         for line in self.get_filled_lines() {
-            for y in (1..line + 1).rev() {
+            for y in (1..=line).rev() {
                 for x in 0..BOARD_WIDTH {
                     self.board[self.convert_xy_to_array_position(&UCoordinate::new(x, y))] =
                         self.board[self.convert_xy_to_array_position(&UCoordinate::new(x, y - 1))];

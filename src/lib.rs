@@ -107,7 +107,7 @@ pub fn initialise_tetrominos() -> [Tetromino; 7] {
 pub fn spawn_tetromino() -> Tetromino {
     let mut tetromino: Tetromino;
     rand::srand(miniquad::date::now() as _);
-    let tetromino_number:usize = rand::gen_range(0, 6);
+    let tetromino_number: usize = rand::gen_range(0, 6);
     tetromino = initialise_tetrominos()[tetromino_number];
     tetromino.set_colour(tetromino_number as u32);
     tetromino
