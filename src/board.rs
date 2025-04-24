@@ -31,27 +31,26 @@ impl Board {
         (coordinate.x + coordinate.y * BOARD_WIDTH) as usize
     }
 
-    pub fn can_piece_move(&self, mut tetromino: Tetromino, direction: Direction) -> bool {
+    pub fn can_piece_move(&self, tetromino: Tetromino, direction: Direction) -> bool {
         // check if the piece can move into it's new area.
-        let mut x_offset = 0;
-        let mut y_offset = 0;
+        let mut temp_tetromino = tetromino.clone();
+        match direction {
+            Direction::Left => {
+                temp_tetromino.move_left();
+            }
+            Direction::Right => {
+                temp_tetromino.move_right();
+            }
+            Direction::Down => {
+                temp_tetromino.move_down();
+            }
+        }
         for y in 0..TETROMINO_SIZE {
             for x in 0..TETROMINO_SIZE {
-                if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
-                    match direction {
-                        Direction::Left => {
-                            x_offset = -1;
-                        }
-                        Direction::Right => {
-                            x_offset = 1;
-                        }
-                        Direction::Down => {
-                            y_offset = 1;
-                        }
-                    }
+                if temp_tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
                     if self.board[self.convert_xy_to_array_position(&UCoordinate::new(
-                        (x as i32 + tetromino.get_coordinates().x + x_offset) as u32,
-                        (y as i32 + tetromino.get_coordinates().y + y_offset) as u32,
+                        (x as i32 + temp_tetromino.get_coordinates().x) as u32,
+                        (y as i32 + temp_tetromino.get_coordinates().y) as u32,
                     ))] != ' '
                     {
                         return false;
