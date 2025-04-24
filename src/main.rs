@@ -16,6 +16,7 @@ async fn main() {
     let mut force_down: bool = false;
     let mut navigation_lock: bool = false;
     let mut game_over: bool = false;
+    let mut game_speed: f64 = SPEED;
 
     current_tetromino = spawn_tetromino();
 
@@ -51,7 +52,7 @@ async fn main() {
             navigation_lock = true;
         }
 
-        if get_time() - last_update > SPEED {
+        if get_time() - last_update > game_speed {
             last_update = get_time();
             force_down = true;
             navigation_lock = false;
@@ -69,6 +70,11 @@ async fn main() {
                     score += SCORE_COMPLETED_LINES_INCREMENT;
                 } else if !board.get_filled_lines().is_empty() {
                     score += SCORE_INCREMENT;
+                }
+                // increment the score if we have completed a line & we are on a multiple of 100
+                // this score increment may need to be tweaked
+                if !board.get_filled_lines().is_empty() && score % 100 == 0 && score != 0 {
+                    game_speed -= 0.01;
                 }
                 board.colour_in_filled_lines();
                 if !game_over {
