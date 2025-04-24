@@ -29,6 +29,13 @@ async fn main() {
             }
             navigation_lock = true;
         }
+        if is_key_down(KeyCode::Down) && !navigation_lock {
+            if board.can_piece_move(current_tetromino, Direction::Down) {
+                current_tetromino.move_down();
+            }
+            navigation_lock = true;
+        }
+        
         if is_key_pressed(KeyCode::Up) {
             current_tetromino.rotate();
             navigation_lock = true;
