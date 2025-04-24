@@ -39,7 +39,6 @@ async fn main() {
             }
             navigation_lock = true;
         }
-
         if is_key_down(KeyCode::Space) && game_over {
             score = 0;
             board = Board::new();
@@ -47,7 +46,7 @@ async fn main() {
             game_over = false;
         }
 
-        if is_key_pressed(KeyCode::Up) {
+        if is_key_pressed(KeyCode::Up) && board.can_piece_rotate(current_tetromino) {
             current_tetromino.rotate();
             navigation_lock = true;
         }

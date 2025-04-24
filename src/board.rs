@@ -59,9 +59,28 @@ impl Board {
                 }
             }
         }
-        //debug!("I can move");
         true
     }
+    pub fn can_piece_rotate(&self, tetromino: Tetromino) -> bool {
+        let mut temp_tetromino = tetromino.clone();
+        temp_tetromino.rotate();
+        for y in 0..TETROMINO_SIZE {
+            for x in 0..TETROMINO_SIZE {
+                if temp_tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
+                    if self.board[self.convert_xy_to_array_position(&UCoordinate::new(
+                        (x as i32 + temp_tetromino.get_coordinates().x) as u32,
+                        (y as i32 + temp_tetromino.get_coordinates().y) as u32,
+                    ))] != ' '
+                    {
+                        return false;
+                    }
+                }
+            }
+        }     
+        true
+    }
+    
+    
     pub fn get_filled_lines(&self) -> Vec<u32> {
         // get the filled lines of the board - used for the flash & score
         let mut ret_filled_lines: Vec<u32> = Vec::new();
