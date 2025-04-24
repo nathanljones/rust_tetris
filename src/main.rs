@@ -1,19 +1,19 @@
 use macroquad::prelude::*;
-use rust_tetris::{draw_board, draw_score, draw_tetromino, spawn_tetromino, Direction};
+use rust_tetris::{Direction, draw_board, draw_score, draw_tetromino, spawn_tetromino};
 
 use rust_tetris::board::Board;
-use rust_tetris::constants::SPEED;
+use rust_tetris::constants::{SCORE_COMPLETED_LINES_INCREMENT, SCORE_INCREMENT, SPEED};
 use rust_tetris::tetromino::Tetromino;
 
 #[macroquad::main("Rust Tetris")]
 async fn main() {
     let mut board = Board::new();
-    let score: u32 = 0;
+    let mut score: u32 = 0;
     let mut current_tetromino: Tetromino;
     let mut last_update = get_time();
     let mut force_down: bool = false;
     let mut navigation_lock: bool = false;
-    
+
     current_tetromino = spawn_tetromino();
 
     loop {
@@ -38,6 +38,7 @@ async fn main() {
             last_update = get_time();
             force_down = true;
             navigation_lock = false;
+            board.remove_filled_lines();
         }
 
         if force_down {
@@ -47,6 +48,12 @@ async fn main() {
             } else {
                 force_down = false;
                 board.lock_tetromino_in_place(current_tetromino);
+                if board.get_filled_lines().len() == 4 {
+                    score += SCORE_COMPLETED_LINES_INCREMENT;
+                } else if !board.get_filled_lines().is_empty() {
+                    score += SCORE_INCREMENT;
+                }
+                board.colour_in_filled_lines();
                 current_tetromino = spawn_tetromino();
             }
         }

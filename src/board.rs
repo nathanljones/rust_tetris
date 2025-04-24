@@ -1,7 +1,7 @@
+use crate::Direction;
 use crate::constants::{BOARD_HEIGHT, BOARD_WIDTH, TETROMINO_SIZE};
 use crate::coordinate::UCoordinate;
 use crate::tetromino::Tetromino;
-use crate::Direction;
 
 pub struct Board {
     board: [char; (BOARD_HEIGHT * BOARD_WIDTH) as usize],
@@ -32,9 +32,9 @@ impl Board {
     }
 
     pub fn can_piece_move(&self, mut tetromino: Tetromino, direction: Direction) -> bool {
+        // check if the piece can move into it's new area.
         let mut x_offset = 0;
         let mut y_offset = 0;
-        // check if the piece can move into it's new area. NB the bounds checking isn't complete
         for y in 0..TETROMINO_SIZE {
             for x in 0..TETROMINO_SIZE {
                 if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
@@ -82,8 +82,10 @@ impl Board {
         for y in 0..TETROMINO_SIZE {
             for x in 0..TETROMINO_SIZE {
                 if tetromino.get_val_at_xy(&UCoordinate::new(x, y)) == 'X' {
-                    self.board[self.convert_xy_to_array_position(&UCoordinate::new((tetromino.get_coordinates().x+x as i32)as u32, (tetromino.get_coordinates().y+y as i32)as u32))] =
-                        char::from_digit(tetromino.get_colour(), 10).unwrap();
+                    self.board[self.convert_xy_to_array_position(&UCoordinate::new(
+                        (tetromino.get_coordinates().x + x as i32) as u32,
+                        (tetromino.get_coordinates().y + y as i32) as u32,
+                    ))] = char::from_digit(tetromino.get_colour(), 10).unwrap();
                 }
             }
         }
@@ -95,8 +97,8 @@ impl Board {
         for line in self.get_filled_lines() {
             for y in (1..line + 1).rev() {
                 for x in 0..BOARD_WIDTH {
-                    self.convert_xy_to_array_position(&UCoordinate::new(x, y))
-                        == self.convert_xy_to_array_position(&UCoordinate::new(x, y - 1));
+                    self.board[self.convert_xy_to_array_position(&UCoordinate::new(x, y))] =
+                        self.board[self.convert_xy_to_array_position(&UCoordinate::new(x, y - 1))];
                 }
             }
         }
@@ -109,7 +111,7 @@ impl Board {
         // so they can flash on screen
         if !self.get_filled_lines().is_empty() {
             for line in self.get_filled_lines() {
-                for x in 0..BOARD_WIDTH {
+                for x in 1..BOARD_WIDTH - 1 {
                     self.board[self.convert_xy_to_array_position(&UCoordinate::new(x, line))] = '8';
                 }
             }
